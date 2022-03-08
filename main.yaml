@@ -1,0 +1,81 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: |
+  Sets up Salesforce integration with Redshift.
+
+  This template has the following prerequisites:
+  * An S3 bucket to hold temporary data, and errors
+  * A configured connections setup in Appflow for Salesforce and Redshift
+
+Parameters: 
+  KmsArn:
+    Description: KMS Key to use for encryption
+    Type: String
+  IntermediateBucket:
+    Description: S3 Bucket to use for transfer
+    Type: String
+    AllowedPattern: "/^[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$/"
+    ConstraintDescription: "must be a valid S3 bucket name, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+  IntermediateBucketPrefix:
+    Description: S3 bucket prefix for transfer
+    Type: String
+    AllowedPattern: "/^[^/\\s].*[^/\\s]$/"
+    ConstraintDescription: "Prefix cannot start or end with whitespace or a '/'"
+  TemplateBucket:
+    Description: S3 bucket for additional nested stacks
+    Type: String
+    AllowedPattern: "/^[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$/"
+    ConstraintDescription: "must be a valid S3 bucket name, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+    Default: "keyrus-appflow-quickstart"
+  TemplateBucketPrefix:
+    Description: S3 bucket prefix for additional nested stacks
+    Type: String
+    AllowedPattern: "/^[^/\\s].*[^/\\s]$/"
+    ConstraintDescription: "Prefix cannot start or end with whitespace or a '/'"
+    Default: "nested"
+  ErrorBucket:
+    Description: S3 Bucket to use for reporting errors
+    Type: String
+    AllowedPattern: "/^[a-z0-9][a-z0-9-]{1,60}[a-z0-9]$/"
+    ConstraintDescription: "must be a valid S3 bucket name, see https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucketnamingrules.html"
+  ErrorBucketPrefix:
+    Description: S3 bucket prefix for errors. defaults to appFlowErrors/
+    Type: String
+    AllowedPattern: "/^[^/\\s].*[^/\\s]$/"
+    ConstraintDescription: "Prefix cannot start or end with whitespace or a '/'"
+    Default: appFlowErrors/
+  SaleforceConnection:
+    Description: Name of the Saleforce connection. You will need to setup a Salesforce Connection in AppFlow before continuing.
+    Type: String
+    AllowedPattern: "/^[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9]$/"
+    ConstraintDescription: "Must start and end with a letter or number and contain only letters, number, and the '-' character"
+  RedShiftConnection:
+    Description: Name of the Redshift connection. You will need to setup a RedShift Connection in AppFlow before continuing.
+    Type: String
+    AllowedPattern: "/^[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9]$/"
+    ConstraintDescription: "Must start and end with a letter or number and contain only letters, number, and the '-' character"
+  RedshiftTable:
+    Description: A table in Redshift you have created to hold the import data
+    Type: String
+
+# Metadata: 
+
+# Mappings: 
+
+# Conditions: 
+
+Resources: 
+  SalesforceAccount:
+    Type: AWS::CloudFormation::Stack
+    Properties: 
+      Parameters: 
+        IntermediateBucket:  !Ref IntermediateBucket
+        IntermediateBucketPrefix:  !Ref IntermediateBucketPrefix
+        ErrorBucket: !Ref ErrorBucket
+        ErrorBucketPrefix: !Ref ErrorBucketPrefix
+        SalesForceConnectionName: !Ref SalesForceConnectionName
+        RedshiftConnectionName: !Ref RedshiftConnectionName
+        RedshiftTable: !Ref RedshiftTable
+      TemplateURL: !Sub "s3://${TemplateBucket}/${TemplatePrefix}/Salesforce_Account_Appflow.yaml"
+      TimeoutInMinutes: 10
+
+# Outputs:
