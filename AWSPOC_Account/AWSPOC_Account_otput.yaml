@@ -1,0 +1,223 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Sample CloudFormation Template for AppFlow: Sample template shows how
+  to create a flow with parameters'
+Parameters:
+  flowname:
+    Description: "Name of the flow"
+    Type: String
+    Default: myflow
+  connname:
+    Description: "Salesforce Connection Name"
+    Type: String
+    Default: AWSPOC
+  timefield:
+    Description: "Field base to calculate the desired time"
+    Type: String
+    Default: CreatedDate
+  startdate:
+    Description: "Start Date in miliseconds epoch format"
+    Type: Number
+    Default: 1612148400000
+  enddate:
+    Description: "End Date in miliseconds epoch format"
+    Type: Number
+    Default: 1614481200000
+Resources:
+  SaleforceFlow:
+    Type: AWS::AppFlow::Flow
+    Properties:
+      Description: AppFlow Flow integrating Saleforce with a Redshift 
+
+      DestinationFlowConfigList:
+        - ConnectorType: Redshift
+          ConnectorProfileName: AWSPOC
+          DestinationConnectorProperties:
+            Redshift:
+              BucketPrefix: AWSPOC_Salesforce
+              ErrorHandlingConfig:
+                FailOnFirstError: true
+                BucketPrefix: Errors
+                BucketName: keyrus-quickstart
+              IntermediateBucketName: keyrus-quickstart
+              Object: awspoc.account
+
+      FlowName: !Ref flowname
+      # kmsARN: arn:aws:kms:us-east-1:856603912865:key/2aeac31a-05a0-4fa2-b65a-966e859eaa77
+      SourceFlowConfig:
+        ConnectorProfileName: aws_demo
+        ConnectorType: Salesforce
+        SourceConnectorProperties: 
+          Salesforce:
+            EnableDynamicFieldUpdate: false
+            IncludeDeletedRecords: false
+            Object: Account
+      Tasks:
+        - TaskType: Filter
+          SourceFields:
+          - Name
+          - Type
+          - ParentId
+          - Phone
+          - Fax
+          - Website
+          - Industry
+          - AnnualRevenue 
+          ConnectorOperator:
+            Salesforce: PROJECTION
+
+        - TaskType: Map
+          SourceFields:
+            - Name
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: name
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: string
+
+        - TaskType: Map
+          SourceFields:
+            - Type
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: type
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: picklist
+
+        - TaskType: Map
+          SourceFields:
+            - ParentId
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: type
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: picklist
+
+        - TaskType: Map
+          SourceFields:
+            - Phone
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: phone
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: phone
+
+        - TaskType: Map 
+          SourceFields:
+            - Fax
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: fax
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: phone
+
+        - TaskType: Map 
+          SourceFields:
+            - Website
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: website
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: url
+
+        - TaskType: Map 
+          SourceFields:
+            - Industry
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: industry
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: picklist
+
+        - TaskType: Map 
+          SourceFields:
+            - AnnualRevenue
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: annualrevenue
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: numeric
+            - Key: SOURCE_DATA_TYPE
+              Value: currency
+
+      TriggerConfig:
+        TriggerType: OnDemand
+
+myKeyWithTag:
+  Type: 'AWS::KMS::Key'
+  Properties:
+    KeyPolicy:
+      Version: 2012-10-17
+      Id: key-default-1
+      Statement:
+        - Sid: Enable IAM User Permissions
+          Effect: Allow
+          Principal:
+            AWS: !Join 
+              - ''
+              - - 'arn:aws:iam::'
+                - !Ref 'AWS::AccountId'
+                - ':root'
+          Action: 'kms:*'
+          Resource: '*'
+    Tags:
+      - Key: !Ref Key
+        Value: !Ref Value
+  Parameters:
+    Key:
+      Type: String
+    Value:
+      Type: String
+
+myKeyWithTag:
+  Type: 'AWS::KMS::Key'
+  Properties:
+    KeyPolicy:
+      Version: 2012-10-17
+      Id: key-default-1
+      Statement:
+        - Sid: Enable IAM User Permissions
+          Effect: Allow
+          Principal:
+            AWS: !Join 
+              - ''
+              - - 'arn:aws:iam::'
+                - !Ref 'AWS::AccountId'
+                - ':root'
+          Action: 'kms:*'
+          Resource: '*'
+    Tags:
+      - Key: !Ref Key
+        Value: !Ref Value
+  Parameters:
+    Key:
+      Type: String
+    Value:
+      Type: String
+
+
+
+
+
+  

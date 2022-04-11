@@ -1,0 +1,175 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Sample CloudFormation Template for AppFlow: Sample template shows how
+  to create a flow with parameters'
+Parameters:
+  flowname:
+    Description: "Name of the flow"
+    Type: String
+    Default: myflow
+  connname:
+    Description: "Salesforce Connection Name"
+    Type: String
+    Default: AWSPOC
+  timefield:
+    Description: "Field base to calculate the desired time"
+    Type: String
+    Default: CreatedDate
+  startdate:
+    Description: "Start Date in miliseconds epoch format"
+    Type: Number
+    Default: 1612148400000
+  enddate:
+    Description: "End Date in miliseconds epoch format"
+    Type: Number
+    Default: 1614481200000
+Resources:
+
+
+
+  SaleforceFlow:
+    Type: AWS::AppFlow::Flow
+    Properties:
+      Description: AppFlow Flow integrating Saleforce with a Redshift 
+
+      DestinationFlowConfigList:
+        - ConnectorType: Redshift
+          ConnectorProfileName: AWSPOC
+          DestinationConnectorProperties:
+            Redshift:
+              BucketPrefix: AWSPOC_Salesforce
+              ErrorHandlingConfig:
+                FailOnFirstError: true
+                BucketPrefix: Errors
+                BucketName: keyrus-quickstart
+              IntermediateBucketName: keyrus-quickstart
+              Object: ods.account
+
+      FlowName: !Ref flowname
+      # kmsARN:
+      SourceFlowConfig:
+        ConnectorProfileName: aws_demo
+        ConnectorType: Salesforce
+        SourceConnectorProperties: 
+          Salesforce:
+            EnableDynamicFieldUpdate: false
+            IncludeDeletedRecords: false
+            Object: Account
+      Tasks:
+        - TaskType: Filter
+          SourceFields:
+          - Name
+          - Type
+          - ParentId
+          - Phone
+          - Fax
+          - Website
+          - Industry
+          - AnnualRevenue 
+          ConnectorOperator:
+            Salesforce: PROJECTION
+
+        - TaskType: Map
+          SourceFields:
+            - Name
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: name
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: string
+
+        - TaskType: Map
+          SourceFields:
+            - Type
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: type
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: picklist
+
+        - TaskType: Map
+          SourceFields:
+            - ParentId
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: type
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: picklist
+
+        - TaskType: Map
+          SourceFields:
+            - Phone
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: phone
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: phone
+
+        - TaskType: Map 
+          SourceFields:
+            - Fax
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: fax
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: phone
+
+        - TaskType: Map 
+          SourceFields:
+            - Website
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: website
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: url
+
+        - TaskType: Map 
+          SourceFields:
+            - Industry
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: industry
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: character varying
+            - Key: SOURCE_DATA_TYPE
+              Value: picklist
+
+        - TaskType: Map 
+          SourceFields:
+            - AnnualRevenue
+          ConnectorOperator:
+            Salesforce: NO_OP
+          DestinationField: annualrevenue
+          TaskProperties:
+            - Key: DESTINATION_DATA_TYPE
+              Value: numeric
+            - Key: SOURCE_DATA_TYPE
+              Value: currency
+
+      triggerConfig:
+        triggerType: Scheduled
+        triggerProperties:
+          Scheduled:
+            scheduleExpression: rate(5minutes)
+            dataPullMode: Incremental
+            scheduleStartTime: '2022-04-08T00:00:00-04:00'
+            timezone: America/New_York
+            scheduleOffset: 0
