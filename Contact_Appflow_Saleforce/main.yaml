@@ -5,23 +5,8 @@ Parameters:
   flowname:
     Description: "Name of the flow"
     Type: String
-    Default: Test_app_flow
-  connname:
-    Description: "Salesforce Connection Name"
-    Type: String
-    Default: AWSPOC
-  timefield:
-    Description: "Field base to calculate the desired time"
-    Type: String
-    Default: CreatedDate
-  startdate:
-    Description: "Start Date in miliseconds epoch format"
-    Type: Number
-    Default: 1612148400000
-  enddate:
-    Description: "End Date in miliseconds epoch format"
-    Type: Number
-    Default: 1614481200000
+    Default: Contact_Saleforce
+ 
 Resources:
 
 
@@ -32,16 +17,16 @@ Resources:
       Description: AppFlow Flow integrating Saleforce with a Redshift 
 
       DestinationFlowConfigList:
-        - ConnectorType: Redshift
-          ConnectorProfileName: AWSPOC
+        - ConnectorType: !ImportValue ConnectorType
+          ConnectorProfileName: !ImportValue CPRN
           DestinationConnectorProperties:
             Redshift:
-              BucketPrefix: AWSPOC_Salesforce
+              BucketPrefix: !ImportValue S3BucketPrefix
               ErrorHandlingConfig:
                 FailOnFirstError: true
-                BucketPrefix: AWSPOC_Salesforce
-                BucketName: keyrus-quickstart
-              IntermediateBucketName: keyrus-quickstart
+                BucketPrefix: Contact-Error
+                BucketName: !ImportValue S3BucketName
+              IntermediateBucketName: !ImportValue S3BucketName
               Object: ods.contact
 
       FlowName: !Ref flowname

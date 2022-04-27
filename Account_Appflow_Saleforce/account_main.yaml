@@ -5,44 +5,33 @@ Parameters:
   flowname:
     Description: "Name of the flow"
     Type: String
-    Default: myflow
-  connname:
-    Description: "Salesforce Connection Name"
-    Type: String
-    Default: AWSPOC
-  timefield:
-    Description: "Field base to calculate the desired time"
-    Type: String
-    Default: CreatedDate
-  startdate:
-    Description: "Start Date in miliseconds epoch format"
-    Type: Number
-    Default: 1612148400000
-  enddate:
-    Description: "End Date in miliseconds epoch format"
-    Type: Number
-    Default: 1614481200000
+    Default: Account_Saleforce
+
+
+
 Resources:
+
+
+
   SaleforceFlow:
     Type: AWS::AppFlow::Flow
     Properties:
       Description: AppFlow Flow integrating Saleforce with a Redshift 
 
       DestinationFlowConfigList:
-        - ConnectorType: Redshift
-          ConnectorProfileName: AWSPOC
+        - ConnectorType: !ImportValue ConnectorType
+          ConnectorProfileName: !ImportValue CPRN
           DestinationConnectorProperties:
             Redshift:
-              BucketPrefix: AWSPOC_Salesforce
+              BucketPrefix: !ImportValue S3BucketPrefix
               ErrorHandlingConfig:
                 FailOnFirstError: true
-                BucketPrefix: Errors
-                BucketName: keyrus-quickstart
-              IntermediateBucketName: keyrus-quickstart
-              Object: awspoc.account
+                BucketPrefix: Account-Error
+                BucketName: !ImportValue S3BucketName
+              IntermediateBucketName: !ImportValue S3BucketName
+              Object: ods.account
 
       FlowName: !Ref flowname
-      # kmsARN: arn:aws:kms:us-east-1:856603912865:key/2aeac31a-05a0-4fa2-b65a-966e859eaa77
       SourceFlowConfig:
         ConnectorProfileName: aws_demo
         ConnectorType: Salesforce
@@ -164,60 +153,7 @@ Resources:
       TriggerConfig:
         TriggerType: OnDemand
 
-myKeyWithTag:
-  Type: 'AWS::KMS::Key'
-  Properties:
-    KeyPolicy:
-      Version: 2012-10-17
-      Id: key-default-1
-      Statement:
-        - Sid: Enable IAM User Permissions
-          Effect: Allow
-          Principal:
-            AWS: !Join 
-              - ''
-              - - 'arn:aws:iam::'
-                - !Ref 'AWS::AccountId'
-                - ':root'
-          Action: 'kms:*'
-          Resource: '*'
-    Tags:
-      - Key: !Ref Key
-        Value: !Ref Value
-  Parameters:
-    Key:
-      Type: String
-    Value:
-      Type: String
-
-myKeyWithTag:
-  Type: 'AWS::KMS::Key'
-  Properties:
-    KeyPolicy:
-      Version: 2012-10-17
-      Id: key-default-1
-      Statement:
-        - Sid: Enable IAM User Permissions
-          Effect: Allow
-          Principal:
-            AWS: !Join 
-              - ''
-              - - 'arn:aws:iam::'
-                - !Ref 'AWS::AccountId'
-                - ':root'
-          Action: 'kms:*'
-          Resource: '*'
-    Tags:
-      - Key: !Ref Key
-        Value: !Ref Value
-  Parameters:
-    Key:
-      Type: String
-    Value:
-      Type: String
 
 
 
 
-
-  
