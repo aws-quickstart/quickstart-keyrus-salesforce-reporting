@@ -16,12 +16,14 @@ Getting ready:
 
 The Salesforce AWS Integration process starts from your AWS account. Enter “amazon connect” in the search bar and select the Amazon Connect option. Another way to find it is by expanding the All Services section and scrolling down to the Customer Experience category.
 
-- Cloudformation 6 templates:
-            1.Salesforce_Lead
-            2.Salesforce_Account
-            3.Salesforce_Opportunity
-            4.Salesforce_Contact
-            5.Salesforce_Case
+- Cloudformation 6 templates 
+        
+            1.Salesforce_Lead -- appflow 
+            2.Salesforce_Account --apflow 
+            3.Salesforce_Opportunity --apflow 
+            4.Salesforce_Contact -- apflow 
+            5.Salesforce_Case -- apflow 
+            6. Redshift cluster, s3, IAM, VPC, with custome resource to create a schema for our data 
 
 - Create an IAM user with access to AWS CloudFormation
 - Amazon Redshift cluster

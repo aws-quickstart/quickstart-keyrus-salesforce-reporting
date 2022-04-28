@@ -30,7 +30,7 @@ Resources:
       FlowName: !Ref flowname
       # kmsARN:
       SourceFlowConfig:
-        ConnectorProfileName: aws_demo
+        ConnectorProfileName: Saleforce
         ConnectorType: Salesforce
         SourceConnectorProperties: 
           Salesforce:
