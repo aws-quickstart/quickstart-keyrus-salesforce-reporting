@@ -30,7 +30,7 @@ Resources:
       FlowName: !Ref flowname
       # kmsARN:
       SourceFlowConfig:
-        ConnectorProfileName: Saleforce
+        ConnectorProfileName: Flow
         ConnectorType: Salesforce
         SourceConnectorProperties: 
           Salesforce:

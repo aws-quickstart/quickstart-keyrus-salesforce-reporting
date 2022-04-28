@@ -31,7 +31,7 @@ Resources:
       FlowName: !Ref flowname
 
       SourceFlowConfig:
-        ConnectorProfileName: aws_demo
+        ConnectorProfileName: Keyrus
         ConnectorType: Salesforce
         SourceConnectorProperties: 
           Salesforce:
