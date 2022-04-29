@@ -7,13 +7,10 @@ Parameters:
     Default: dev
     Type: String
     Description: Database name
-    
-
   MasterUsername:
     Type: String
     Description: Master user name for Redshift
     Default: keyrus
-
   MasterUserPassword:
     Default: Keyrus-US-2022
     Description: Master password for Redshift (used mixed case and numbers) Make Sure this is solid something with special chars.
@@ -27,7 +24,7 @@ Parameters:
      Enter alphanumeric password for the master user. The password must contain 8 to 64 printable ASCII characters, excluding: /, ", \'', \ and @. It must contain one uppercase letter, one lowercase letter, and one number.
     
   ## End Database Settings ## 
-
+  
   ## Node Setup ## 
 
   NumberOfNodes:
@@ -85,7 +82,6 @@ Parameters:
       - false
     Description: Enables or disables logging to an S3 bucket.  To enable logging, select True.
 
-
   ConnectionModeVal:
     Default: 'Public'
     Type: String
@@ -108,10 +104,7 @@ Parameters:
     Description: Connection Profile Type
 
   ## End S3 S3S ## 
-
-
   
-
 Conditions:
   IsGovCloud: !Equals [!Ref 'AWS::Region', 'us-gov-west-1']
   RedshiftSingleNodeClusterCondition:
@@ -502,20 +495,14 @@ Resources:
                 OpportunityHistoryID  varchar(18)
                 )           
             """)
-            
-            
-
+         
             conn.commit() 
-
             responseValue = 120
             responseData = {}
             responseData['Data'] = responseValue
             cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
 
             conn.close()
-            
-
-
             responseBody = {'statusCode': 200 , 'Status': 'SUCCESS' }
             responseBody = json.dumps(responseBody)
             return responseBody
@@ -618,7 +605,7 @@ Resources:
             
             Action:
               - "sts:AssumeRole"
-    
+
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -666,7 +653,6 @@ Resources:
           ToPort: 5439
           IpProtocol: tcp
           Description: IP address for your dev machine  
-
   
   RedshiftCluster:
     Type: AWS::Redshift::Cluster
@@ -723,8 +709,6 @@ Resources:
       ConnectorProfileName: !Ref ConnectorProfileName
       ConnectorType: !Ref ConnectorType
 
-
-
 Outputs:
 
   ConnectorType: 
@@ -761,7 +745,6 @@ Outputs:
     Export:
       Name: "S3BucketPrefix"
 
-  
   DataBaseEndpoint:
     Value: !Sub ${RedshiftCluster.Endpoint.Address}
     Description: RedshiftCluster Database Endpoint 

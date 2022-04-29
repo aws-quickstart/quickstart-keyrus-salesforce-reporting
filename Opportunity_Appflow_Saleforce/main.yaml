@@ -1,11 +1,10 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Sample CloudFormation Template for AppFlow: Sample template shows how
-  to create a flow with parameters'
+Description: 'CloudFormation Template for AppFlow'
 Parameters:
   flowname:
     Description: "Name of the flow"
     Type: String
-    Default: Opportunity_Saleforce
+    Default: Opportunity-Saleforce
 
 Resources:
 
@@ -30,7 +29,7 @@ Resources:
       FlowName: !Ref flowname
       # kmsARN:
       SourceFlowConfig:
-        ConnectorProfileName: Flow
+        ConnectorProfileName: Salesforce-Flow
         ConnectorType: Salesforce
         SourceConnectorProperties: 
           Salesforce:

@@ -1,18 +1,13 @@
 
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'Sample CloudFormation Template for AppFlow: Sample template shows how
-  to create a flow with parameters'
+Description: 'CloudFormation Template for AppFlow'
 Parameters:
   flowname:
     Description: "Name of the flow"
     Type: String
-    Default: Account_Saleforce
-
-
-
+    Default: Account-Saleforce
 
 Resources:
-
   SaleforceFlow:
     Type: AWS::AppFlow::Flow
     Properties:
@@ -31,9 +26,9 @@ Resources:
               IntermediateBucketName: !ImportValue S3BucketName
               Object: ods.account
 
-      FlowName: SaleforceFlow_account
+      FlowName: !Ref flowname
       SourceFlowConfig:
-        ConnectorProfileName: Keyrus
+        ConnectorProfileName: Salesforce-Flow
         ConnectorType: Salesforce
         SourceConnectorProperties: 
           Salesforce:
