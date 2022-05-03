@@ -457,7 +457,7 @@ Resources:
             - LastViewedDate
           ConnectorOperator:
             Salesforce: NO_OP
-          DestinationField: lastavieweddate
+          DestinationField: lastvieweddate
           TaskProperties:
             - Key: DESTINATION_DATA_TYPE
               Value: timestamp without time zone
