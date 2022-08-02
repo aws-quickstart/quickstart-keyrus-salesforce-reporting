@@ -1,0 +1,14 @@
+// Include any postdeployment steps here, such as steps necessary to test that the deployment was successful. If there are no postdeployment steps, leave this file empty.
+
+== Postdeployment steps
+
+==== Configure flow runs. The following are the supported flow trigger types:
+
+Run on demand — Users manually run the flow as needed.
+
+Run on event — Amazon AppFlow runs the flow in response to an event from an SaaS application.
+
+Run on schedule — Amazon AppFlow runs the flow on a recurring schedule.
+
+* Note:  Flow trigger is set to 1 hour cycle data refresh. You can change it in AWS Console AppFlow service
+ 
