@@ -300,7 +300,6 @@ Conditions:
 Resources:
   SalesforceRedshift:
     Type: AWS::CloudFormation::Stack
-    Description: Create VPC, RedShift,S3,etc 
     Properties:
       # TemplateURL: !Sub ${ChildStackPath}/quickstart-salesforce-redshift.template.yaml
       TemplateURL: !Sub
