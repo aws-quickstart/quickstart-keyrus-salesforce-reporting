@@ -26,8 +26,7 @@ Parameters:
   ConnectorProfileNameSalesforce:
     Description: "Select the Production radio box from the Salesforce environment section. Enter the connection name and click Continue. The Connection name must match in every single Cloudformation template for AppFlow logs or any other desired name."
     Type: String
-Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+
 Resources:
   SalesforceFlow:
     Type: AWS::AppFlow::Flow
