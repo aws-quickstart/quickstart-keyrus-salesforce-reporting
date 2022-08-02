@@ -1283,7 +1283,7 @@ Resources:
   RedshiftIAMRole:
     Type: 'AWS::IAM::Role'
     Properties:
-      RoleName: !Join [ "-", [!Ref 'AWS::StackName', "Redshift-IAM-Role"] ]
+      RoleName: redshift-role-iam-appflow-salesforce
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:

@@ -258,7 +258,7 @@ Parameters:
     AllowedValues:
       - 'Public'
       - 'Private'
-    Description: Connection Mode for Connection Profile
+    Description: Connection Mode for Connection Profile "in this version redshift support only Public Connection mode"
   ConnectorProfileName:
     Default: 'profile'
     Type: String
@@ -302,7 +302,11 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Description: Create VPC, RedShift,S3,etc 
     Properties:
-      TemplateURL: !Sub ${ChildStackPath}/quickstart-salesforce-redshift.template.yaml
+      # TemplateURL: !Sub ${ChildStackPath}/quickstart-salesforce-redshift.template.yaml
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/quickstart-salesforce-redshift.template.yaml'
+        - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
+          S3Bucket: !If [ UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName ]      
       Parameters:
         ClassB: !Ref ClassB
         RemoteAccessCIDR: !Ref RemoteAccessCIDR
@@ -353,8 +357,8 @@ Resources:
       Parameters:
         CaseSalesforce: !Ref CaseSalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
 
   AppflowContact:
     DependsOn: SalesforceRedshift
@@ -368,8 +372,8 @@ Resources:
       Parameters:
         ContactSalesforce: !Ref ContactSalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
 
   AppflowLead:
     DependsOn: SalesforceRedshift
@@ -383,8 +387,8 @@ Resources:
       Parameters:
         LeadSalesforce: !Ref LeadSalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
   AppflowOpportunity:
     DependsOn: SalesforceRedshift
     Type: AWS::CloudFormation::Stack
@@ -397,5 +401,5 @@ Resources:
       Parameters:
         OpportunitySalesforce: !Ref OpportunitySalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
+        QSS3BucketName: !Ref QSS3BucketName
+        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'

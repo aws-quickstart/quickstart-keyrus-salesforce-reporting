@@ -489,10 +489,6 @@ Resources:
               Value: character varying
             - Key: SOURCE_DATA_TYPE
               Value: textarea
-
-      # TriggerConfig:
-      #   TriggerType: OnDemand
-
       TriggerConfig:
         TriggerType: Scheduled
         TriggerProperties:
