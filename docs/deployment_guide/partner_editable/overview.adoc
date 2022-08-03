@@ -1,4 +1,7 @@
-This Quick Start deploys {partner-product-name} on the AWS Cloud. This guide covers the steps necessary to deploy this Quick Start.
+* This Quick Start deploys {partner-product-name} on the AWS Cloud.
+Quick Start deploys multiple resources on the AWS Cloud to activate data pipelines that source data from your Salesforce account and ingest it into an Amazon Redshift data warehouse. If you are unfamiliar with AWS Quick Starts, refer to the AWS Quick Start General Information Guide.
+This Quick Start is for users who want to deploy a full data ingestion end-to-end solution in a secure, flexible, and highly available way to a data and analytics platform system. It uses AWS CloudFormation to deploy AWS Appflow for data ingestion from Salesforce to  Redshift as a cloud data warehouse and Lambda functions to create all the required Database objects automatically as the core components this solution. This Quickstart also deploys additional services such Secrets Manager, KMS, S3, IAM, VPC.
+
 
 // For advanced information about the product, troubleshooting, or additional functionality, refer to the https://{quickstart-github-org}.github.io/{quickstart-project-name}/operational/index.html[Operational Guide^].
 
