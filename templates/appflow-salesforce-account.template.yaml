@@ -3,9 +3,6 @@ Description: CloudFormation Template for AppFlow (qs-1t7ksiu5l)
 Metadata:
   QSLint:
     Exclusions: [ W9002, W9003, W9004, W9006 ]
-  QuickStartDocumentation:
-    EntrypointName: "Launch Account Appflow"
-    Order: 3
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
@@ -16,8 +13,8 @@ Metadata:
     ParameterLabels:
       AccountSalesforce:
         default: "Name of the Account object flow"
-      ConnectorProfileNameSalesforce: 
-        default: Production radio box from the Salesforce environment section (connection Must be created before deploying ) 
+      ConnectorProfileNameSalesforce:
+        default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
 Parameters:
   AccountSalesforce:
     Description: "Name of the flow"
@@ -721,6 +718,5 @@ Resources:
     Properties:
       ServiceToken: !GetAtt ActivateAppFlowOnStart.Arn
 
-  
-  
-  
+
+

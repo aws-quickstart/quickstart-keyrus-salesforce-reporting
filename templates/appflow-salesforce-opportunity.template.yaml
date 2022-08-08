@@ -3,9 +3,6 @@ Description: CloudFormation Template for AppFlow (qs-1t7ksiu7e)
 Metadata:
   QSLint:
     Exclusions: [ W9002, W9003, W9004, W9006 ]
-  QuickStartDocumentation:
-    EntrypointName: "Launch Opportunity Appflow"
-    Order: 7
   AWS::CloudFormation::Interface:
     ParameterGroups:
 

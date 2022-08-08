@@ -4,9 +4,6 @@ Transform: AWS::SecretsManager-2020-07-23
 Metadata:
   QSLint:
     Exclusions: [ W9002, W9003, W9004, W9006 ]
-  QuickStartDocumentation:
-    EntrypointName: "Launch into a new VPC"
-    Order: 2
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
@@ -865,7 +862,7 @@ Resources:
             return responseBody
 
   Primerinvoke:
-    Type: AWS::CloudFormation::CustomResource
+    Type: 'AWS::CloudFormation::CustomResource'
     DependsOn:
       - LambdaRedShiftRunOnStart
       - RedshiftCluster
@@ -874,7 +871,7 @@ Resources:
       ServiceToken: !GetAtt LambdaRedShiftRunOnStart.Arn
 
   LambdaExecutionRole:
-    Type: AWS::IAM::Role
+    Type: 'AWS::IAM::Role'
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -945,7 +942,7 @@ Resources:
           Value: !Ref TagEnvironment
 
   CMKeyRedshiftCluster:
-    Type: AWS::KMS::Key
+    Type: 'AWS::KMS::Key'
     Condition: IsEncryptionAtRest
     Properties:
       Description: 'Customer managed key to be used for encryption at rest'
@@ -1091,7 +1088,9 @@ Resources:
   RedshiftClusterParameterGroup:
     Type: 'AWS::Redshift::ClusterParameterGroup'
     Properties:
-      Description: !Join [ " ", [ !Ref 'AWS::StackName', " - Redshift Cluster Parameter group" ]]
+      Description: !Sub
+        - ${StackID}-Redshift Cluster Parameter group
+        - StackID: !Select [ 2, !Split [ /, !Ref AWS::StackId ] ]
       ParameterGroupFamily: redshift-1.0
       Parameters:
         - ParameterName: enable_user_activity_logging
@@ -1140,29 +1139,31 @@ Resources:
         - Key: Environment
           Value: !Ref TagEnvironment
   SecretRedshiftMasterUser:
-    Type: "AWS::SecretsManager::Secret"
+    Type: 'AWS::SecretsManager::Secret'
     Properties:
       Description: "Secrets Manager to store Redshift master user credentials"
       GenerateSecretString:
         SecretStringTemplate: !Sub
         - '{"username": "${MasterUsername}"}'
         - {MasterUsername: !Ref MasterUsername}
-        GenerateStringKey: "password"
+        GenerateStringKey: password
         PasswordLength: !FindInMap [ Redshift, Password, Length]
         ExcludePunctuation: true
   SecretAttachmentRedshiftMasterUser:
-    Type: "AWS::SecretsManager::SecretTargetAttachment"
+    Type: 'AWS::SecretsManager::SecretTargetAttachment'
     Properties:
       SecretId: !Ref SecretRedshiftMasterUser
       TargetId: !Ref RedshiftCluster
       TargetType: AWS::Redshift::Cluster
   RotationScheduleRedshiftMasterUser:
-    Type: AWS::SecretsManager::RotationSchedule
+    Type: 'AWS::SecretsManager::RotationSchedule'
     DependsOn: SecretAttachmentRedshiftMasterUser
     Properties:
       SecretId: !Ref SecretRedshiftMasterUser
       HostedRotationLambda:
-        RotationLambdaName: !Join [ "-", [ "RotationRedshiftMasterUserPassword" ] ]
+        RotationLambdaName: !Sub
+          - ${StackID}-RotationRedshiftMasterUserPassword
+          - StackID: !Select [ 2, !Split [ /, !Ref AWS::StackId ] ]
         RotationType: RedshiftSingleUser
       RotationRules:
         AutomaticallyAfterDays: !Ref AutoPasswordRotationIntervalDays
@@ -1241,7 +1242,7 @@ Resources:
                 Resource: "*"
 
   ConnectorProfile:
-    Type: AWS::AppFlow::ConnectorProfile
+    Type: 'AWS::AppFlow::ConnectorProfile'
     DependsOn : RedshiftCluster
     Properties:
       ConnectionMode: !Ref ConnectionModeVal

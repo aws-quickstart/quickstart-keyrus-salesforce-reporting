@@ -3,9 +3,6 @@ Description: CloudFormation Template for AppFlow (qs-1t7ksiu78)
 Metadata:
   QSLint:
     Exclusions: [ W9002, W9003, W9004, W9006 ]
-  QuickStartDocumentation:
-    EntrypointName: "Launch Lead Appflow"
-    Order: 6
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
@@ -16,7 +13,7 @@ Metadata:
     ParameterLabels:
       LeadSalesforce:
         default: "Name of the Lead object flow"
-      ConnectorProfileNameSalesforce: 
+      ConnectorProfileNameSalesforce:
         default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
 Parameters:
   LeadSalesforce:
@@ -752,4 +749,3 @@ Resources:
       ServiceToken: !GetAtt ActivateAppFlowOnStart.Arn
 
 
- 
