@@ -7,6 +7,17 @@ Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
       - Label:
+          default: Network configuration
+        Parameters:
+          - AvailabilityZones
+          - VPCCIDR
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - PrivateSubnet3CIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - PublicSubnet3CIDR
+      - Label:
           default: AWS Quick Start configuration
         Parameters:
           - QSS3BucketName
@@ -45,7 +56,25 @@ Metadata:
           - TagEnvironment
           - ClassB
           - RemoteAccessCIDR
+          - kmskey
+          - MakeRedshiftPubliclyAccessible
     ParameterLabels:
+      AvailabilityZones:
+        default: Availability Zones
+      PrivateSubnet1CIDR:
+        default: Private subnet 1 CIDR
+      PrivateSubnet2CIDR:
+        default: Private subnet 2 CIDR
+      PrivateSubnet3CIDR:
+        default: Private subnet 3 CIDR
+      PublicSubnet1CIDR:
+        default: Public subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public subnet 2 CIDR
+      PublicSubnet3CIDR:
+        default: Public subnet 3 CIDR
+      VPCCIDR:
+        default: VPC CIDR
       QSS3BucketName:
         default: Quick Start S3 bucket name
       QSS3KeyPrefix:
@@ -106,7 +135,47 @@ Metadata:
         default: "Name of the Oportunity object flow"
       ConnectorProfileNameSalesforce:
         default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
+      kmskey:
+        default: KMS key ID
+      MakeRedshiftPubliclyAccessible:
+        default: Make Redshift publicly accessible
 Parameters:
+  AvailabilityZones:
+    Description: >-
+      List of Availability Zones to use for the subnets in the VPC. Only two
+      Availability Zones are used for this deployment, and the logical order of
+      your selections is preserved.
+    Type: 'List<AWS::EC2::AvailabilityZone::Name>'
+  PrivateSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in the form x.x.x.x/x.
+    Default: 10.0.0.0/19
+    Description: 'CIDR block for private subnet 1 located in Availability Zone 1.'
+    Type: String
+  PrivateSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 10.0.32.0/19
+    Description: '(Please ignore if you choose 1 AZs)CIDR block for private subnet 2 located in Availability Zone 2.'
+    Type: String
+  PublicSubnet1CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in the form x.x.x.x/x.
+    Default: 10.0.128.0/20
+    Description: 'CIDR block for the public DMZ subnet 1 located in Availability Zone 1.'
+    Type: String
+  PublicSubnet2CIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in x.x.x.x/x notation
+    Default: 10.0.144.0/20
+    Description: '(Please ignore if you choose 1 AZs)CIDR block for the public DMZ subnet 2 located in Availability Zone 2.'
+    Type: String
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in the form x.x.x.x/x.
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String
   QSS3BucketName:
     AllowedPattern: ^[0-9a-zA-Z]+([0-9a-zA-Z-]*[0-9a-zA-Z])*$
     ConstraintDescription: Quick Start bucket name can include numbers, lowercase
@@ -291,39 +360,70 @@ Parameters:
     Description: "Select the Production radio box from the Salesforce environment section. Enter the connection name and click Continue. The Connection name must match in every single Cloudformation template for AppFlow logs or any other desired name."
     Type: String
     Default: aws_demo
+  kmskey:
+    Description: The existing KMS key ID for encrypting Redshift database at-rest.
+    Type: String
+    Default: ''
+  MakeRedshiftPubliclyAccessible:
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'false'
+    Description: Specifies whether Amazon Redshift will be publicly accessible.
+    Type: String
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  RedshiftPubliclyAccessible: !Equals [!Ref 'MakeRedshiftPubliclyAccessible', 'true']
 Resources:
+  VPCStack:
+    Type: 'AWS::CloudFormation::Stack'
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml'
+        - S3Region:
+            !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
+          S3Bucket:
+            !If [ UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName ]
+      Parameters:
+        AvailabilityZones: !Join
+          - ','
+          - !Ref AvailabilityZones
+        NumberOfAZs: '2'
+        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        VPCCIDR: !Ref VPCCIDR
   SalesforceRedshift:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/quickstart-salesforce-redshift.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-redshift/redshift.template.yaml'
         - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
           S3Bucket: !If [ UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName ]
       Parameters:
-        ClassB: !Ref ClassB
-        RemoteAccessCIDR: !Ref RemoteAccessCIDR
-        DatabaseName: !Ref DatabaseName
-        RedshiftClusterPort: !Ref RedshiftClusterPort
-        NumberOfNodes: !Ref NumberOfNodes
-        NodeType: !Ref NodeType
-        AutoPasswordRotationIntervalDays: !Ref AutoPasswordRotationIntervalDays
-        MasterUsername: !Ref MasterUsername
-        ConcurrencyScaling: !Ref ConcurrencyScaling
-        MaxConcurrentCluster: !Ref MaxConcurrentCluster
-        EnableAQUA: !Ref EnableAQUA
-        EncryptionAtRest: !Ref EncryptionAtRest
-        EnableLoggingToS3: !Ref EnableLoggingToS3
-        S3BucketPrefix: !Ref S3BucketPrefix
-        EnableVPCEnhancedRouting: !Ref EnableVPCEnhancedRouting
-        MaintenanceTrack: !Ref MaintenanceTrack
-        TagName: !Ref TagName
-        TagEnvironment: !Ref TagEnvironment
-        ConnectionModeVal: !Ref ConnectionModeVal
-        ConnectorProfileName: !Ref ConnectorProfileName
-        ConnectorType: !Ref ConnectorType
+        Parameters:
+          VPCID: !GetAtt VPCStack.Outputs.VPCID
+          RemoteAccessCIDR: !If [ RedshiftPubliclyAccessible, !Ref RemoteAccessCIDR, !Ref VPCCIDR ]
+          PubliclyAccessible: !If [ RedshiftPubliclyAccessible, 'true', 'false' ]
+          Subnet1ID: !If [ RedshiftPubliclyAccessible, !GetAtt VPCStack.Outputs.PublicSubnet1ID, !GetAtt VPCStack.Outputs.PrivateSubnet1AID ]
+          Subnet2ID: !If [ RedshiftPubliclyAccessible, !GetAtt VPCStack.Outputs.PublicSubnet2ID, !GetAtt VPCStack.Outputs.PrivateSubnet2AID ]
+          DatabaseName: !Ref DatabaseName
+          RedshiftClusterPort: !Ref RedshiftClusterPort
+          NumberOfNodes: !Ref NumberOfNodes
+          NodeType: !Ref NodeType
+          MasterUsername: !Ref MasterUsername
+          MaxConcurrentCluster: !Ref MaxConcurrentCluster
+          ConcurrencyScaling: !Ref ConcurrencyScaling
+          EncryptionAtRest: !Ref EncryptionAtRest
+          kmskey: !Ref kmskey
+          EnableLoggingToS3: !Ref EnableLoggingToS3
+          QSS3BucketName: !Ref QSS3BucketName
+          QSS3BucketRegion: !Ref QSS3BucketRegion
+          QSS3KeyPrefix: !Ref QSS3KeyPrefix
+          TagName: !Ref TagName
+          TagEnvironment: !Ref TagEnvironment
 
   AppflowAccount:
     DependsOn: SalesforceRedshift
