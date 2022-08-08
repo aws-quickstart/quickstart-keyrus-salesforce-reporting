@@ -139,6 +139,7 @@ Parameters:
   MaxConcurrentCluster:
     Description: The maximum number of concurrency scaling Redshift clusters.
     Type: String
+    Default: '1'
   EnableAQUA:
     Type: String
     AllowedValues:
