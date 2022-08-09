@@ -35,8 +35,8 @@ Metadata:
           - TagName
           - TagEnvironment
           - RemoteAccessCIDR
-          - Subnet1ID
-          - Subnet2ID
+          - Subnet1Public
+          - Subnet2Public
     ParameterLabels:
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -46,9 +46,9 @@ Metadata:
         default: Quick Start S3 bucket Region
       RemoteAccessCIDR:
         default: Allowed external access CIDR
-      Subnet1ID:
+      Subnet1Public:
         default: Private subnet 1 ID
-      Subnet2ID:
+      Subnet2Public:
         default: Private subnet 2 ID
       DatabaseName:
         default: The name of the first database to be created when the cluster is created
@@ -203,10 +203,10 @@ Parameters:
       - 'Redshift'
       - 'Salesforce'
     Description: Connection Profile Type
-  Subnet1ID:
+  Subnet1Public:
     Description: The ID of the private subnet in Availability Zone 1 in your existing VPC.
     Type: 'AWS::EC2::Subnet::Id'
-  Subnet2ID:
+  Subnet2Public:
     Description: The ID of the private subnet in Availability Zone 2 in your existing VPC.
     Type: 'AWS::EC2::Subnet::Id'
 Mappings:

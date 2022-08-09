@@ -392,8 +392,8 @@ Resources:
         ConnectionModeVal: !Ref ConnectionModeVal
         ConnectorProfileName: !Ref ConnectorProfileName
         ConnectorType: !Ref ConnectorType
-        Subnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
-        Subnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
+        Subnet1Public: !GetAtt VPCStack.Outputs.PublicSubnet1ID
+        Subnet2Public: !GetAtt VPCStack.Outputs.PublicSubnet2ID
 
   AppflowAccount:
     DependsOn: SalesforceRedshift
