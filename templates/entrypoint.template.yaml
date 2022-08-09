@@ -35,6 +35,7 @@ Metadata:
         Parameters:
           - DatabaseName
           - RedshiftClusterPort
+          - S3BucketPrefix
           - EnableLoggingToS3
           - ConnectorProfileName
           - ConnectionModeVal
@@ -52,8 +53,6 @@ Metadata:
           - TagName
           - TagEnvironment
           - RemoteAccessCIDR
-          - kmskey
-          - MakeRedshiftPubliclyAccessible
     ParameterLabels:
       AvailabilityZones:
         default: Availability Zones
@@ -73,8 +72,10 @@ Metadata:
         default: Quick Start S3 key prefix
       QSS3BucketRegion:
         default: Quick Start S3 bucket Region
+      ClassB:
+        default: Class B of VPC
       RemoteAccessCIDR:
-        default: Comma-delimited list of three CIDR IPs in us-east-1
+        default: Allowed external access CIDR
       DatabaseName:
         default: The name of the first database to be created when the cluster is created
       RedshiftClusterPort:
@@ -85,6 +86,8 @@ Metadata:
         default: The node type determines the CPU, RAM, storage capacity, and storage drive type for each node
       AutoPasswordRotationIntervalDays:
         default: Password rotation refers to the changing/resetting of a password(s)
+      S3BucketPrefix:
+        default: S3 Bucket Prefix for logging bucket
       EnableLoggingToS3:
         default: Enables or disables logging to an S3 bucket.
       MasterUsername:
@@ -123,10 +126,6 @@ Metadata:
         default: "Name of the Oportunity object flow"
       ConnectorProfileNameSalesforce:
         default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
-      kmskey:
-        default: KMS key ID
-      MakeRedshiftPubliclyAccessible:
-        default: Make Redshift publicly accessible
 Parameters:
   AvailabilityZones:
     Description: >-
@@ -188,6 +187,10 @@ Parameters:
     Description: Region where the Quick Start S3 bucket (QSS3BucketName) is
       hosted. When using your own bucket, you must specify this value.
     Type: String
+  # ChildStackPath:
+    # Description: "Path to child stack cfts"
+    # Type: String
+    # Default: "https://my-bucket-s3-name-s3-appflow.s3.amazonaws.com"
   RemoteAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -264,6 +267,10 @@ Parameters:
       - 'true'
       - 'false'
     Description: Enables or disables logging to an S3 bucket.  To enable logging, select True.
+  S3BucketPrefix:
+      Description: The prefix name for the S3 bucket
+      Type: String
+      Default: 'Logs'
   EnableVPCEnhancedRouting:
     Default: 'true'
     Type: String
@@ -285,11 +292,11 @@ Parameters:
   TagEnvironment:
     Type: String
     AllowedValues:
-      - 'dev'
-      - 'test'
-      - 'pre-prod'
-      - 'prod'
-      - 'none'
+      - dev
+      - test
+      - pre-prod
+      - prod
+      - none
     Default: 'test'
     Description: The environment tag that is used to designate the environment stage of the associated AWS resource.
   ConnectionModeVal:
@@ -308,6 +315,7 @@ Parameters:
     Type: String
     AllowedValues:
       - 'Redshift'
+      # - 'Salesforce'
     Description: Connection Profile Type
   AccountSalesforce:
     Description: Salesforce Account Objects
@@ -333,22 +341,9 @@ Parameters:
     Description: "Select the Production radio box from the Salesforce environment section. Enter the connection name and click Continue. The Connection name must match in every single Cloudformation template for AppFlow logs or any other desired name."
     Type: String
     Default: aws_demo
-  kmskey:
-    Description: The existing KMS key ID for encrypting Redshift database at-rest.
-    Type: String
-    Default: ''
-  MakeRedshiftPubliclyAccessible:
-    AllowedValues:
-      - 'true'
-      - 'false'
-    Default: 'false'
-    Description: Specifies whether Amazon Redshift will be publicly accessible.
-    Type: String
 
 Conditions:
   UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
-  RedshiftPubliclyAccessible: !Equals [!Ref 'MakeRedshiftPubliclyAccessible', 'true']
-  IsEncryptionAtRest: !Equals [!Ref EncryptionAtRest, 'true']
 Resources:
   VPCStack:
     Type: 'AWS::CloudFormation::Stack'
@@ -373,98 +368,33 @@ Resources:
     Type: AWS::CloudFormation::Stack
     Properties:
       TemplateURL: !Sub
-        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-amazon-redshift/redshift.template.yaml'
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/quickstart-salesforce-redshift.template.yaml'
         - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
           S3Bucket: !If [ UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName ]
       Parameters:
-        Parameters:
-          VPCID: !GetAtt VPCStack.Outputs.VPCID
-          RemoteAccessCIDR: !If
-            - RedshiftPubliclyAccessible
-            - !Ref RemoteAccessCIDR
-            - !Ref VPCCIDR
-          PubliclyAccessible: !If
-            - RedshiftPubliclyAccessible
-            - 'true'
-            - 'false'
-          Subnet1ID: !If
-            - RedshiftPubliclyAccessible
-            - Fn::GetAtt:
-                - VPCStack
-                - Outputs.PublicSubnet1ID
-            - Fn::GetAtt:
-                - VPCStack
-                - Outputs.PrivateSubnet1AID
-          Subnet2ID: !If
-            - RedshiftPubliclyAccessible
-            - Fn::GetAtt:
-                - VPCStack
-                - Outputs.PublicSubnet2ID
-            - Fn::GetAtt:
-                - VPCStack
-                - Outputs.PrivateSubnet2AID
-          DatabaseName: !Ref DatabaseName
-          RedshiftClusterPort: !Ref RedshiftClusterPort
-          NumberOfNodes: !Ref NumberOfNodes
-          NodeType: !Ref NodeType
-          MasterUsername: !Ref MasterUsername
-          MaxConcurrentCluster: !Ref MaxConcurrentCluster
-          ConcurrencyScaling: !Ref ConcurrencyScaling
-          EncryptionAtRest: !Ref EncryptionAtRest
-          kmskey: !Ref CMKeyRedshiftCluster
-          EnableLoggingToS3: !Ref EnableLoggingToS3
-          QSS3BucketName: !Ref QSS3BucketName
-          QSS3BucketRegion: !Ref QSS3BucketRegion
-          QSS3KeyPrefix: !Sub ${QSS3KeyPrefix}submodules/quickstart-amazon-redshift/
-          TagName: !Ref TagName
-          TagEnvironment: !Ref TagEnvironment
-  CMKeyRedshiftCluster:
-    Type: 'AWS::KMS::Key'
-    Condition: IsEncryptionAtRest
-    Metadata:
-      cfn-lint:
-        config:
-          ignore_checks:
-            - EIAMPolicyActionWildcard
-          ignore_reasons:
-            EIAMPolicyActionWildcard: This is based on Design.
-    Properties:
-      Description: 'Customer managed key to be used for encryption at rest'
-      Enabled: Yes
-      EnableKeyRotation: Yes
-      KeyPolicy:
-        Version: 2012-10-17
-        Id: key-default-1
-        Statement:
-          - Sid: Enable KMS Permissions for root account user
-            Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
-            Action: 'kms:*'
-            Resource: '*'
-          - Sid: Enable IAM User Permissions
-            Effect: Allow
-            Principal:
-              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
-            Action: 'kms:*'
-            Resource: '*'
-          - Sid: 'Allow access through Redshift for all principals in the account that are authorized to use Redshift'
-            Effect: 'Allow'
-            Principal:
-              AWS: '*'
-            Action:
-              - 'kms:Encrypt'
-              - 'kms:Decrypt'
-              - 'kms:ReEncrypt*'
-              - 'kms:GenerateDataKey*'
-              - 'kms:CreateGrant'
-              - 'kms:ListGrants'
-              - 'kms:DescribeKey'
-            Resource: '*'
-            Condition:
-              StringEquals:
-                'kms:CallerAccount': !Sub '${AWS::AccountId}'
-                'kms:ViaService': !Sub 'redshift.${AWS::Region}.amazonaws.com'
+        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        DatabaseName: !Ref DatabaseName
+        RedshiftClusterPort: !Ref RedshiftClusterPort
+        NumberOfNodes: !Ref NumberOfNodes
+        NodeType: !Ref NodeType
+        AutoPasswordRotationIntervalDays: !Ref AutoPasswordRotationIntervalDays
+        MasterUsername: !Ref MasterUsername
+        ConcurrencyScaling: !Ref ConcurrencyScaling
+        MaxConcurrentCluster: !Ref MaxConcurrentCluster
+        EnableAQUA: !Ref EnableAQUA
+        EncryptionAtRest: !Ref EncryptionAtRest
+        EnableLoggingToS3: !Ref EnableLoggingToS3
+        S3BucketPrefix: !Ref S3BucketPrefix
+        EnableVPCEnhancedRouting: !Ref EnableVPCEnhancedRouting
+        MaintenanceTrack: !Ref MaintenanceTrack
+        TagName: !Ref TagName
+        TagEnvironment: !Ref TagEnvironment
+        ConnectionModeVal: !Ref ConnectionModeVal
+        ConnectorProfileName: !Ref ConnectorProfileName
+        ConnectorType: !Ref ConnectorType
+        Subnet1ID: !GetAtt VPCStack.Outputs.PublicSubnet1ID
+        Subnet2ID: !GetAtt VPCStack.Outputs.PublicSubnet2ID
+
   AppflowAccount:
     DependsOn: SalesforceRedshift
     Type: AWS::CloudFormation::Stack
