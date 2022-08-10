@@ -37,6 +37,7 @@ Metadata:
           - RemoteAccessCIDR
           - Subnet1Public
           - Subnet2Public
+          - VPCCIDR
     ParameterLabels:
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -46,10 +47,12 @@ Metadata:
         default: Quick Start S3 bucket Region
       RemoteAccessCIDR:
         default: Allowed external access CIDR
-      Subnet1Public:
-        default: Private subnet 1 ID
-      Subnet2Public:
-        default: Private subnet 2 ID
+      VPCCIDR:
+        default: VPC CIDR
+      Subnet1:
+        default: Subnet 1 ID
+      Subnet2:
+        default: Subnet 2 ID
       DatabaseName:
         default: The name of the first database to be created when the cluster is created
       RedshiftClusterPort:
@@ -89,6 +92,11 @@ Metadata:
       EncryptionAtRest:
         default: Enables or disables encryption at rest of the Redshift database.
 Parameters:
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: Must be a valid IP range in the form x.x.x.x/x.
+    Description: CIDR block for the VPC.
+    Type: String
   RemoteAccessCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
     ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
@@ -203,12 +211,15 @@ Parameters:
       - 'Redshift'
       - 'Salesforce'
     Description: Connection Profile Type
-  Subnet1Public:
-    Description: The ID of the private subnet in Availability Zone 1 in your existing VPC.
+  Subnet1:
+    Description: The ID of the subnet in Availability Zone 1 in your existing VPC.
     Type: 'AWS::EC2::Subnet::Id'
-  Subnet2Public:
-    Description: The ID of the private subnet in Availability Zone 2 in your existing VPC.
+  Subnet2:
+    Description: The ID of the subnet in Availability Zone 2 in your existing VPC.
     Type: 'AWS::EC2::Subnet::Id'
+  VPCID:
+    Description: The ID of your existing VPC that you’re deploying Redshift into.
+    Type: 'AWS::EC2::VPC::Id'
 Mappings:
   Redshift: # static values related to the redshift cluster
     Password:
@@ -280,11 +291,14 @@ Conditions:
     Fn::Equals:
       - !Select [0, !Split [".", !Ref NodeType]]
       - 'ra3'
-  #IsIPthereB: !Not [!Equals [!Ref RemoteAccessCIDR2, '']]
-  #IsIPthereC: !Not [!Equals [!Ref RemoteAccessCIDR3, '']]
 
   #IsAquaCompatible: !Or [!Equals [!Ref "NodeType", "ra3.16xlarge"], !Equals [!Ref "NodeType", "ra3.4xlarge"], !Equals [!Ref "NodeType", "ra3.xlarge"]]
 Resources:
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for lambda to communicate with Redshift
+      VpcId: !Ref VPCID
   LambdaRedShiftRunOnStart:
     Type: AWS::Lambda::Function
     DependsOn: RedshiftCluster
@@ -300,10 +314,10 @@ Resources:
       Runtime: python3.7
       VpcConfig:
         SecurityGroupIds:
-          - !GetAtt VPC.DefaultSecurityGroup
+          - !Ref RedshiftSecurityGroup
         SubnetIds:
-          - !Ref SubnetAPrivate
-          - !Ref SubnetBPrivate
+          - !Ref Subnet1
+          - !Ref Subnet2
       Timeout: 180
       Code:
         ZipFile: !Sub |
@@ -647,7 +661,7 @@ Resources:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
       GroupDescription: !Join [ " ", [ !Ref 'AWS::StackName', " - Redshift Security Group" ] ]
-      VpcId: !Ref VPC
+      VpcId: !Ref VPCID
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: !Ref RedshiftClusterPort
@@ -657,13 +671,12 @@ Resources:
         - IpProtocol: tcp
           FromPort: !Ref RedshiftClusterPort
           ToPort: !Ref RedshiftClusterPort
-          CidrIp: !Sub '${ElasticIP}/32'
-          Description: 'Lambda Access via NAT Gateway'
-        - IpProtocol: tcp
-          FromPort: !Ref RedshiftClusterPort
-          ToPort: !Ref RedshiftClusterPort
-          CidrIp: !Sub '${VPC.CidrBlock}'
+          CidrIp: !Ref VPCCIDR
           Description: 'VPC CIDR Range'
+        - IpProtocol: tcp
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
+          ToPort: !Ref RedshiftClusterPort
+          FromPort: !Ref RedshiftClusterPort
       Tags:
         - Key: Name
           Value: !Join
@@ -855,8 +868,8 @@ Resources:
     Properties:
       Description: Cluster subnet group
       SubnetIds:
-        - !Ref Subnet1Public
-        - !Ref Subnet2Public
+        - !Ref Subnet1
+        - !Ref Subnet2
       Tags:
         - Key: Name
           Value:
