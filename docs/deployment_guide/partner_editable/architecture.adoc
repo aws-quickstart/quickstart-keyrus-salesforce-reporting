@@ -34,7 +34,7 @@ internet access for resources in the private subnets.*
     - Mapping will field all destination fields
     - We have provided a sample SWL mapping file for objects: account, contact, case, lead, opportunity
 
-* Custom Lambda function resource - create a schema with custom tables inside of the Redshift cluster and trigger AppFlow to run it from Salesforce to Redshift.
+* Custom Lambda function resource - create a schema with custom tables inside the Redshift cluster and trigger AppFlow to run it from Salesforce to Redshift.
     - Account object
     - Contact object
     - Lead object
