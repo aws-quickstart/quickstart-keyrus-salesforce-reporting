@@ -40,7 +40,7 @@ internet access for resources in the private subnets.*
     - Lead object
     - Opportunity object
     - Case object
-
+* Private subnets are used by RedShift Cluster.
 
 
 
