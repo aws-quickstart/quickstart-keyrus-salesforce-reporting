@@ -1,0 +1,1187 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Amazon Redshift CloudFormation Oct 31,2021 (qs-1t7ksiu5f)
+Transform: AWS::SecretsManager-2020-07-23
+Metadata:
+  QSLint:
+    Exclusions: [ W9002, W9003, W9004, W9006, E9101 ]
+  cfn-lint:
+    config:
+      ignore_checks:
+        - E9101
+      ignore_reasons:
+        E9101: This is by design due to Salesforce terminology.
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Redshift configuration
+        Parameters:
+          - DatabaseName
+          - RedshiftClusterPort
+          - S3BucketPrefix
+          - EnableLoggingToS3
+          - ConnectorProfileName
+          - ConnectionModeVal
+          - ConnectorType
+          - NumberOfNodes
+          - NodeType
+          - EncryptionAtRest
+          - AutoPasswordRotationIntervalDays
+          - MasterUsername
+          - ConcurrencyScaling
+          - MaxConcurrentCluster
+          - EnableAQUA
+          - EnableVPCEnhancedRouting
+          - MaintenanceTrack
+          - TagName
+          - TagEnvironment
+          - VPCCIDR
+          - RemoteAccessCIDR1
+          - RemoteAccessCIDR2
+          - RemoteAccessCIDR3
+          - PublicSubnet1ID
+          - PublicSubnet2ID
+          - PrivateSubnet1AID
+          - PrivateSubnet2AID
+  ParameterLabels:
+    PrivateSubnet1AID:
+      default: Private subnet 1 CIDR
+    PrivateSubnet2AID:
+      default: Private subnet 2 CIDR
+    PublicSubnet1ID:
+      default: Public subnet 1 CIDR
+    PublicSubnet2ID:
+      default: Public subnet 1 CIDR
+    RemoteAccessCIDR1:
+      default: Allowed external access CIDR
+    RemoteAccessCIDR2:
+      default: Allowed external access CIDR
+    RemoteAccessCIDR3:
+      default: Allowed external access CIDR
+    VPCCIDR:
+      default: VPC CIDR
+    DatabaseName:
+      default: The name of the first database to be created when the cluster is created
+    RedshiftClusterPort:
+      default: Redshift database clusters are not using their default endpoint port
+    NumberOfNodes:
+      default: The number of compute nodes in the cluster
+    NodeType:
+      default: The node type determines the CPU, RAM, storage capacity, and storage drive type for each node
+    AutoPasswordRotationIntervalDays:
+      default: Password rotation refers to the changing/resetting of a password(s)
+    S3BucketPrefix:
+      default: S3 Bucket Prefix for logging bucket
+    EnableLoggingToS3:
+      default: Enables or disables logging to an S3 bucket.
+    MasterUsername:
+      default: Connection Profile name for RedShift
+    MaxConcurrentCluster:
+      default: The maximum number of concurrency scaling Redshift clusters
+    ConnectionModeVal:
+      default: Connection Mode for Connection Profile
+    ConnectorType:
+      default: Connection Profile Type
+    TagName:
+      default: Company name
+    TagEnvironment:
+      default: Environment tag
+    ConnectorProfileName:
+      default: Connection name for Redshift cluster
+    MaintenanceTrack:
+      default: Amazon Redshift version to apply during a maintenance window
+    EnableVPCEnhancedRouting:
+      default: Enhanced VPC routing in Amazon Redshift
+    EnableAQUA:
+      default: Advanced Query Accelerator
+    ConcurrencyScaling:
+      default: You can support virtually unlimited concurrent users and concurrent queries, with consistently fast query performance.
+    EncryptionAtRest:
+      default: Enables or disables encryption at rest of the Redshift database.
+Parameters:
+  PublicSubnet1ID:
+    Description: ID of the public subnet in Availability Zone 1
+    Type: AWS::EC2::Subnet::Id
+  PublicSubnet2ID:
+    Description: ID of the public subnet in Availability Zone 2
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet1AID:
+    Description: ID of the private subnet in Availability Zone 1
+    Type: AWS::EC2::Subnet::Id
+  PrivateSubnet2AID:
+    Description: ID of the private subnet in Availability Zone 2
+    Type: AWS::EC2::Subnet::Id
+  RemoteAccessCIDR1:
+    Description: Comma-delimited list of three CIDR IPs
+    Type: String
+  RemoteAccessCIDR2:
+    Description: Comma-delimited list of three CIDR IPs
+    Type: String
+  RemoteAccessCIDR3:
+    Description: Comma-delimited list of three CIDR IPs
+    Type: String
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Description: CIDR block for the VPC.
+    Type: String
+  VPCID:
+    Description: 'ID of the VPC (for example, vpc-0343606e)'
+    Type: 'AWS::EC2::VPC::Id'
+  DatabaseName:
+    Description: The name of the first database to be created when the cluster is created.
+    Type: String
+    AllowedPattern: '([a-z]|[0-9])+'
+  RedshiftClusterPort:
+    Description: The port number on which the cluster accepts incoming connections.
+    Type: Number
+  NumberOfNodes:
+    Description: The number of compute nodes in the cluster. For multi-node clusters, the NumberOfNodes parameter must be greater than 1.
+    Type: Number
+  NodeType:
+    Description: The type of node to be provisioned, we recommend select RA3 nodes wherever available.
+    Type: String
+    AllowedValues:
+      - ra3.xlplus
+      - ra3.4xlarge
+      - ra3.16xlarge
+      - dc2.large
+      - dc2.8xlarge
+      - ds2.xlarge
+      - ds2.8xlarge
+  AutoPasswordRotationIntervalDays:
+    Description: Number of days after which user password will be auto-rotated
+    Type: String
+    AllowedPattern: '([0-9])*'
+    ConstraintDescription: must be a number
+  MasterUsername:
+    Description: The user name that is associated with the user account for the cluster that is being created.
+    Type: String
+    AllowedPattern: '([a-z])([a-z]|[0-9])*'
+    ConstraintDescription: must start with a-z and contain only a-z or 0-9.
+  ConcurrencyScaling:
+    Type: String
+    AllowedValues:
+      - 'auto'
+      - 'off'
+    Description: When the number of queries routed to a queue exceeds the queue's configured concurrency, eligible queries go to the scaling cluster.
+  MaxConcurrentCluster:
+    Description: The maximum number of concurrency scaling Redshift clusters.
+    Type: String
+    Default: '1'
+  EnableAQUA:
+    Type: String
+    AllowedValues:
+      - 'auto'
+      - 'enabled'
+      - 'disabled'
+    Description: Enables or disables AQUA (Advanced Query Accelerator). With auto, Redshift determines whether to use AQUA.
+  EncryptionAtRest:
+    Description: Enables or disables encryption at rest of the Redshift database.
+    Type: String
+    AllowedValues:
+      - 'true'
+      - 'false'
+    ConstraintDescription: must be true or false.
+  EnableLoggingToS3:
+    Type: String
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: Enables or disables logging to an S3 bucket.  To enable logging, select True.
+  S3BucketPrefix:
+      Description: The prefix name for the S3 bucket
+      Type: String
+  EnableVPCEnhancedRouting:
+    Type: String
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: Enables or disables VPC enhanced routing.  To enable enhanced routing, select True.
+  MaintenanceTrack:
+    Type: String
+    AllowedValues:
+      - 'current'
+      - 'trailing'
+    Description: Defines Amazon Redshift version to apply during a maintenance window. Select "current" to apply most recent version and "trailing" for the previous version.
+  TagName:
+    Type: String
+    Description: The unique friendly name as required by your company?s tagging strategy document, and which will be added to the environment tag.
+  TagEnvironment:
+    Type: String
+    AllowedValues:
+      - dev
+      - test
+      - pre-prod
+      - prod
+      - none
+    Default: none
+    Description: The environment tag that is used to designate the environment stage of the associated AWS resource.
+  ConnectionModeVal:
+    Type: String
+    AllowedValues:
+      - 'Public'
+      - 'Private'
+    Description: Connection Mode for Connection Profile
+  ConnectorProfileName:
+    Type: String
+    Description: Connection Profile Name
+  ConnectorType:
+    Default: 'Redshift'
+    Type: String
+    AllowedValues:
+      - 'Redshift'
+      - 'Salesforce'
+    Description: Connection Profile Type
+
+Mappings:
+  Redshift: # static values related to the redshift cluster
+    Password:
+      Length: 32
+    AuditLogging:
+      ExpirationDays: 400
+      TransitionDays: 60
+    CPUUtilizationAlarm:
+      Threshold: 95
+    AZ:
+      Relocation: true
+  RedshiftLoggingAccountIDRegionMap:
+    us-gov-west-1:
+      RSAccountID: xx
+    us-east-1:
+      RSAccountID: 193672423079
+    us-east-2:
+      RSAccountID: 391106570357
+    us-west-1:
+      RSAccountID: 262260360010
+    us-west-2:
+      RSAccountID: 902366379725
+    ap-east-1:
+      RSAccountID: 313564881002
+    ap-south-1:
+      RSAccountID: 865932855811
+    ap-northeast-3:
+      RSAccountID: 090321488786
+    ap-northeast-2:
+      RSAccountID: 760740231472
+    ap-southeast-1:
+      RSAccountID: 361669875840
+    ap-southeast-2:
+      RSAccountID: 762762565011
+    ap-northeast-1:
+      RSAccountID: 404641285394
+    ca-central-1:
+      RSAccountID: 907379612154
+    cn-north-1:
+      RSAccountID: 111890595117
+    cn-northwest-1:
+      RSAccountID: 660998842044
+    eu-west-1:
+      RSAccountID: 210876761215
+    eu-central-1:
+      RSAccountID: 053454850223
+    eu-west-2:
+      RSAccountID: 307160386991
+    eu-west-3:
+      RSAccountID: 915173422425
+    eu-north-1:
+      RSAccountID: 729911121831
+    sa-east-1:
+      RSAccountID: 075028567923
+Conditions:
+  GovCloudCondition: !Equals [!Ref 'AWS::Region', 'us-gov-west-1']
+  RedshiftSingleNodeClusterCondition:
+    Fn::Equals:
+      - Ref: NumberOfNodes
+      - '1'
+  IsEncryptionAtRest: !Equals
+    - !Ref EncryptionAtRest
+    - 'true'
+  IsProd: !Equals [!Ref TagEnvironment, 'prod']
+  IsEnableLoggingToS3: !And
+    - !Equals [!Ref EnableLoggingToS3, 'true']
+    - !Not [!Condition GovCloudCondition]
+  IsRA3:
+    Fn::Equals:
+      - !Select [0, !Split [".", !Ref NodeType]]
+      - 'ra3'
+
+  #IsAquaCompatible: !Or [!Equals [!Ref "NodeType", "ra3.16xlarge"], !Equals [!Ref "NodeType", "ra3.4xlarge"], !Equals [!Ref "NodeType", "ra3.xlarge"]]
+Resources:
+  LambdaSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for lambda to communicate with Redshift
+      VpcId: !Ref VPCID
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: '0.0.0.0/0'
+
+  LambdaRedShiftRunOnStart:
+    Type: AWS::Lambda::Function
+    DependsOn: RedshiftCluster
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+          ignore_reasons:
+            E9101: This is required by RedShift
+    Properties:
+      Environment:
+        Variables:
+          DatabaseName: !Ref DatabaseName
+          RedShiftUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref SecretRedshiftMasterUser, ':SecretString:username}}' ]]
+          RedShiftUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref SecretRedshiftMasterUser, ':SecretString:password}}' ]]
+          host: !Sub ${RedshiftCluster.Endpoint.Address}
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Runtime: python3.7
+      VpcConfig:
+        SecurityGroupIds:
+          - !Ref LambdaSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1AID
+          - !Ref PrivateSubnet2AID
+      Code:
+        ZipFile: !Sub |
+          import json
+          import time
+          import unicodedata
+          import traceback
+          import sys
+          import os
+          import cfnresponse
+          from pip._internal import main
+          main(['install', '-I', '-q', 'redshift_connector', '--target', '/tmp/', '--no-cache-dir', '--disable-pip-version-check'])
+          sys.path.insert(0,'/tmp/')
+          import redshift_connector
+
+          def handler(event, context):
+            ## Everything below try block is indented inside it
+            conn = redshift_connector.connect(
+              host=os.environ['host'],
+              database= os.environ['DatabaseName'],
+              user=os.environ['RedShiftUsername'],
+              password=os.environ['RedShiftUserPassword']
+            )
+            cur: redshift_connector.Cursor = conn.cursor()
+            cur.execute("create schema ods")
+            conn.commit()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ods.account
+                (
+                Name                    varchar(255),
+                AccountNumber           varchar(40),
+                OwnerId                 varchar(18),
+                Site                    varchar(80),
+                AccountSource           varchar(255),
+                AnnualRevenue           decimal(18, 2),
+                CreatedById             varchar(18),
+                Jigsaw                  varchar(18),
+                Description             Text,
+                NumberOfEmployees       decimal(8, 0),
+                Fax                     varchar(255),
+                Industry                varchar(255),
+                LastModifiedById        varchar(18),
+                Ownership               varchar(255),
+                ParentId                varchar(18),
+                Phone                   varchar(50),
+                Rating                  varchar(255),
+                Sic                     varchar(10),
+                SicDesc                 varchar(80),
+                TickerSymbol            varchar(20),
+                Type                    varchar(255),
+                Website                 varchar(255),
+                Id                      varchar(18),
+                Deleted                 boolean,
+                MasterRecordId          varchar(20),
+                BillingStreet           varchar(255),
+                BillingCity             varchar(255),
+                BillingStateProvince    varchar(255),
+                BillingZipPostalCode    varchar(255),
+                BillingCountry          varchar(255),
+                BillingLatitude         decimal(11, 8),
+                BillingLongitude        decimal(11, 8),
+                BillingGeocodeAccuracy  varchar(255),
+                BillingAddress          varchar(255),
+                ShippingStreet          varchar(255),
+                ShippingCity            varchar(255),
+                ShippingStateProvince   varchar(255),
+                ShippingZipPostalCode   varchar(255),
+                ShippingCountry         varchar(255),
+                ShippingLatitude        decimal(11, 8),
+                ShippingLongitude       decimal(11, 8),
+                ShippingGeocodeAccuracy varchar(255),
+                ShippingAddress         varchar(255),
+                PhotoURL                varchar(255),
+                CreatedDate             timestamp,
+                LastModifiedDate        timestamp,
+                SystemModstamp          varchar(255),
+                LastActivity            varchar(255),
+                LastViewedDate          timestamp,
+                LastReferencedDate      timestamp,
+                DatacomKey              varchar(255),
+                JigsawCompanyId         varchar(255),
+                SICDescription          Text
+                )
+            """)
+            conn.commit()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ods.contact
+                (
+                ContactID                  varchar(18),
+                Deleted                    boolean,
+                MasterRecordID             varchar(255),
+                AccountID                  varchar(255),
+                LastName                   varchar(255),
+                FirstName                  varchar(255),
+                Salutation                 varchar(50),
+                FullName                   varchar(255),
+                OtherStreet                varchar(255),
+                OtherCity                  varchar(255),
+                OtherStateProvince         varchar(255),
+                OtherZipPostalCode         varchar(20),
+                OtherCountry               varchar(255),
+                OtherLatitude              decimal(11, 8),
+                OtherLongitude             decimal(11, 8),
+                OtherGeocodeAccuracy       varchar(100),
+                OtherAddress               varchar(255),
+                MailingStreet              varchar(255),
+                MailingCity                varchar(255),
+                MailingStateProvince       varchar(255),
+                MailingZipPostalCode       varchar(255),
+                MailingCountry             varchar(255),
+                MailingLatitude            decimal(11, 8),
+                MailingLongitude           decimal(11, 8),
+                MailingGeocodeAccuracy     varchar(100),
+                MailingAddress             varchar(255),
+                BusinessPhone              varchar(50),
+                BusinessFax                varchar(50),
+                MobilePhone                varchar(50),
+                HomePhone                  varchar(50),
+                OtherPhone                 varchar(50),
+                AsstPhone                  varchar(50),
+                ReportsToID                varchar(255),
+                Email                      varchar(255),
+                Title                      varchar(255),
+                Department                 varchar(255),
+                AssistantsName             varchar(255),
+                LeadSource                 varchar(255),
+                Birthdate                  date,
+                ContactDescription         varchar(max),
+                OwnerID                    varchar(255),
+                CreatedDate                timestamp,
+                CreatedByID                varchar(255),
+                LastModifiedDate           timestamp,
+                LastModifiedByID           varchar(255),
+                SystemModstamp             timestamp,
+                LastActivity               date,
+                LastStayinTouchRequestDate timestamp,
+                LastStayinTouchSaveDate    timestamp,
+                LastViewedDate             timestamp,
+                LastReferencedDate         timestamp,
+                EmailBouncedReason         varchar(300),
+                EmailBouncedDate           timestamp,
+                IsEmailBounced             boolean,
+                PhotoURL                   varchar(255),
+                DatacomKey                 varchar(50),
+                JigsawContactID            varchar(50),
+                IndividualID               varchar(50)
+                )
+
+            """)
+
+            conn.commit()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ods.case
+                (
+                CaseID             varchar(18),
+                Deleted            boolean,
+                MasterRecordID     varchar(18),
+                CaseNumber         varchar(255),
+                ContactID          varchar(18),
+                AccountID          varchar(18),
+                ParentCaseID       varchar(18),
+                Name               varchar(255),
+                EmailAddress       varchar(255),
+                Phone              varchar(50),
+                Company            varchar(255),
+                CaseType           varchar(255),
+                Status             varchar(255),
+                CaseReason         varchar(255),
+                CaseOrigin         varchar(255),
+                Subject            varchar(255),
+                Priority           varchar(255),
+                Description        varchar(max),
+                Closed             boolean,
+                ClosedDate         timestamp,
+                Escalated          boolean,
+                OwnerID            varchar(18),
+                CreatedDate        timestamp,
+                CreatedByID        varchar(18),
+                LastModifiedDate   timestamp,
+                LastModifiedByID   varchar(18),
+                SystemModstamp     timestamp,
+                ContactPhone       varchar(50),
+                ContactMobile      varchar(50),
+                ContactEmail       varchar(255),
+                ContactFax         varchar(50),
+                InternalComments   text,
+                LastViewedDate     timestamp,
+                LastReferencedDate timestamp,
+                CustomCreateDate   timestamp
+                )
+            """)
+
+            conn.commit()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ods.lead
+                (
+                LeadID                  varchar(100),
+                Deleted                 boolean,
+                MasterRecordIdReference varchar(100),
+                LastName                varchar(255),
+                FirstName               varchar(255),
+                Salutation              varchar(18),
+                FullName                varchar(255),
+                Title                   varchar(255),
+                Company                 varchar(255),
+                Street                  varchar(255),
+                City                    varchar(255),
+                StateProvince           varchar(255),
+                ZipPostalCode           varchar(255),
+                Country                 varchar(255),
+                Latitude                decimal(11, 8),
+                Longitude               decimal(11, 8),
+                GeocodeAccuracy         varchar(255),
+                Address                 varchar(255),
+                Phone                   varchar(255),
+                Email                   varchar(255),
+                Website                 varchar(255),
+                PhotoURL                varchar(255),
+                Description             varchar(255),
+                LeadSource              varchar(255),
+                Status                  varchar(255),
+                Industry                varchar(255),
+                Rating                  varchar(255),
+                AnnualRevenue           decimal,
+                Employees               int,
+                OwnerID                 varchar(100),
+                Converted               boolean,
+                ConvertedDate           date,
+                ConvertedAccountID      varchar(100),
+                ConvertedContactID      varchar(100),
+                ConvertedOpportunityID  varchar(100),
+                UnreadByOwner           boolean,
+                CreatedDate             timestamp,
+                CreatedByID             varchar(100),
+                LastModifiedDate        timestamp,
+                LastModifiedByID        varchar(100),
+                SystemModstamp          timestamp,
+                LastActivity            date,
+                LastViewedDate          timestamp,
+                LastReferencedDate      timestamp,
+                DatacomKey              varchar(255),
+                JigsawContactID         varchar(255),
+                EmailBouncedReason      varchar(255),
+                EmailBouncedDate        timestamp,
+                IndividualID            varchar(100)
+                )
+            """)
+            conn.commit()
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS ods.opportunity
+                (
+                OpportunityID         varchar(18),
+                Deleted               boolean,
+                AccountID             varchar(255),
+                Name                  varchar(255),
+                Description           varchar(max),
+                Stage                 varchar(255),
+                Amount                int,
+                ProbabilityPercentage decimal(12, 2),
+                CloseDate             date,
+                OpportunityType       varchar(255),
+                NextStep              varchar(255),
+                LeadSource            varchar(255),
+                Closed                boolean,
+                Won                   boolean,
+                ForecastCategory      varchar(255),
+                CampaignID            varchar(18),
+                HasLineItem           boolean,
+                PriceBookID           varchar(18),
+                OwnerID               varchar(18),
+                CreatedDate           date,
+                CreatedByID           varchar(18),
+                LastModifiedDate      date,
+                LastModifiedByID      varchar(18),
+                SystemModstamp        timestamp,
+                LastActivity          date,
+                FiscalQuarter         int,
+                FiscalYear            int,
+                FiscalPeriod          varchar(255),
+                ContactID             varchar(18),
+                LastViewedDate        timestamp,
+                LastReferencedDate    timestamp,
+                HasOpenActivity       boolean,
+                HasOverdueTask        boolean,
+                OpportunityHistoryID  varchar(18)
+                )
+            """)
+
+            conn.commit()
+            responseValue = 120
+            responseData = {}
+            responseData['Data'] = responseValue
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+
+            conn.close()
+            responseBody = {'statusCode': 200 , 'Status': 'SUCCESS' }
+            responseBody = json.dumps(responseBody)
+            return responseBody
+
+  Primerinvoke:
+    Type: 'AWS::CloudFormation::CustomResource'
+    DependsOn:
+      - LambdaRedShiftRunOnStart
+      - RedshiftCluster
+    Version: "1.0"
+    Properties:
+      ServiceToken: !GetAtt LambdaRedShiftRunOnStart.Arn
+
+  LambdaExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+            - EIAMPolicyActionWildcard
+            - EIAMPolicyWildcardResource
+          ignore_reasons:
+            E9101: This is required by RedShift
+            EIAMPolicyActionWildcard: By Designed
+            EIAMPolicyWildcardResource: By Designed
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+              - "lambda.amazonaws.com"
+              - "redshift.amazonaws.com"
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            Resource: !Sub arn:${AWS::Partition}:logs:*:*:*
+          - Effect: Allow
+            Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterface
+            - ec2:DeleteNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            Resource: "*"
+
+  RedshiftSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: !Join [ " ", [ !Ref 'AWS::StackName', " - Redshift Security Group" ] ]
+      VpcId: !Ref VPCID
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Ref RedshiftClusterPort
+          ToPort: !Ref RedshiftClusterPort
+          CidrIp: !Ref RemoteAccessCIDR1
+          Description: 'Redshift Access to VPC CIDR'
+        - IpProtocol: tcp
+          FromPort: !Ref RedshiftClusterPort
+          ToPort: !Ref RedshiftClusterPort
+          CidrIp: !Ref RemoteAccessCIDR2
+          Description: 'Redshift Access to VPC CIDR'
+        - IpProtocol: tcp
+          FromPort: !Ref RedshiftClusterPort
+          ToPort: !Ref RedshiftClusterPort
+          CidrIp: !Ref RemoteAccessCIDR3
+          Description: 'Redshift Access to VPC CIDR'
+        - IpProtocol: tcp
+          FromPort: !Ref RedshiftClusterPort
+          ToPort: !Ref RedshiftClusterPort
+          CidrIp: !Ref VPCCIDR
+          Description: 'VPC CIDR Range'
+        - IpProtocol: tcp
+          SourceSecurityGroupId: !Ref LambdaSecurityGroup
+          ToPort: !Ref RedshiftClusterPort
+          FromPort: !Ref RedshiftClusterPort
+      Tags:
+        - Key: Name
+          Value: !Join
+            - '_'
+            - - !Ref TagName
+              - !Sub '${AWS::StackName}-RedshiftSecurityGroup'
+        - Key: Environment
+          Value: !Ref TagEnvironment
+
+  CMKeyRedshiftCluster:
+    Type: 'AWS::KMS::Key'
+    Condition: IsEncryptionAtRest
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - EIAMPolicyActionWildcard
+          ignore_reasons:
+            EIAMPolicyActionWildcard: This is based on AWS Documentation.
+    Properties:
+      Description: 'Customer managed key to be used for encryption at rest'
+      Enabled: Yes
+      EnableKeyRotation: Yes
+      KeyPolicy:
+        Version: 2012-10-17
+        Id: key-default-1
+        Statement:
+          - Sid: Enable KMS Permissions for root account user
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${AWS::AccountId}:root'
+            Action: 'kms:*'
+            Resource: '*'
+          - Sid: 'Allow access through Redshift for all principals in the account that are authorized to use Redshift'
+            Effect: 'Allow'
+            Principal:
+              AWS: '*'
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+              - 'kms:ReEncrypt*'
+              - 'kms:GenerateDataKey*'
+              - 'kms:CreateGrant'
+              - 'kms:ListGrants'
+              - 'kms:DescribeKey'
+            Resource: '*'
+            Condition:
+              StringEquals:
+                'kms:CallerAccount': !Sub '${AWS::AccountId}'
+                'kms:ViaService': !Sub 'redshift.${AWS::Region}.amazonaws.com'
+  RedshiftLoggingS3Bucket:
+    Type: 'AWS::S3::Bucket'
+    DeletionPolicy: Retain
+    Condition: IsEnableLoggingToS3
+    Properties:
+      LifecycleConfiguration:
+        Rules:
+          - Id: RedshiftLogsArchivingToGlacier
+            Status: Enabled
+            ExpirationInDays: !FindInMap [ Redshift, AuditLogging, ExpirationDays]
+            Transitions:
+              - TransitionInDays: !FindInMap [ Redshift, AuditLogging, TransitionDays]
+                StorageClass: Glacier
+      Tags:
+        - Key: Name
+          Value:
+            !Join [
+              '-',
+              [
+                !Ref TagName,
+                !Ref 'AWS::StackName',
+                'Redshift-Cluster-LoggingBucket',
+              ],
+            ]
+        - Key: Environment
+          Value: !Ref TagEnvironment
+  RedshiftLoggingS3BucketPolicy:
+    Type: 'AWS::S3::BucketPolicy'
+    Condition: IsEnableLoggingToS3
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - EIAMPolicyActionWildcard
+            - E9101
+          ignore_reasons:
+            EIAMPolicyActionWildcard: This is based on AWS Documentation.
+            E9101: s3:AbortMultipartUpload is set by Service team for S3
+    Properties:
+      Bucket: !Ref RedshiftLoggingS3Bucket
+      PolicyDocument:
+        Statement:
+          - Principal:
+              AWS:
+                !Join [
+                  '',
+                  [
+                    'arn:aws:iam::',
+                    !FindInMap [
+                      RedshiftLoggingAccountIDRegionMap,
+                      !Ref 'AWS::Region',
+                      RSAccountID,
+                    ],
+                    ':user/logs',
+                  ],
+                ]
+            Effect: Allow
+            Action: 's3:GetBucketAcl'
+            Resource: !Sub '${RedshiftLoggingS3Bucket.Arn}'
+          - Principal:
+              AWS:
+                !Join [
+                  '',
+                  [
+                    'arn:aws:iam::',
+                    !FindInMap [
+                      RedshiftLoggingAccountIDRegionMap,
+                      !Ref 'AWS::Region',
+                      RSAccountID,
+                    ],
+                    ':user/logs',
+                  ],
+                ]
+            Effect: Allow
+            Action: 's3:PutObject'
+            Resource: !Sub '${RedshiftLoggingS3Bucket.Arn}/AWSLogs/*'
+          - Effect: Allow
+            Action:
+              - s3:*
+            Resource:
+              - !Sub ${RedshiftLoggingS3Bucket.Arn}
+              - !Sub ${RedshiftLoggingS3Bucket.Arn}/*
+            Principal:
+              Service: redshift.amazonaws.com
+          - Effect: Allow
+            Principal:
+              Service: appflow.amazonaws.com
+            Action:
+              - s3:PutObject
+              - s3:AbortMultipartUpload
+              - s3:ListMultipartUploadParts
+              - s3:ListBucketMultipartUploads
+              - s3:GetBucketAcl
+              - s3:PutObjectAcl
+            Resource:
+              - !Sub ${RedshiftLoggingS3Bucket.Arn}
+              - !Sub ${RedshiftLoggingS3Bucket.Arn}/*
+          - Sid: AllowAppFlowSourceActions
+            Effect: Allow
+            Principal:
+              Service: appflow.amazonaws.com
+            Action:
+            - s3:ListBucket
+            - s3:GetObject
+            Resource:
+              - !Sub ${RedshiftLoggingS3Bucket.Arn}
+              - !Sub ${RedshiftLoggingS3Bucket.Arn}/*
+  RedshiftClusterParameterGroup:
+    Type: 'AWS::Redshift::ClusterParameterGroup'
+    Properties:
+      Description: !Sub
+        - ${StackID}-Redshift Cluster Parameter group
+        - StackID: !Select [ 2, !Split [ /, !Ref AWS::StackId ] ]
+      ParameterGroupFamily: redshift-1.0
+      Parameters:
+        - ParameterName: enable_user_activity_logging
+          ParameterValue: !If [IsProd, 'true', 'false']
+        - ParameterName: require_ssl
+          ParameterValue: 'true'
+        - ParameterName: auto_analyze
+          ParameterValue: 'true'
+        - ParameterName: statement_timeout
+          ParameterValue: '43200000'
+        - ParameterName: max_concurrency_scaling_clusters
+          ParameterValue: !Ref MaxConcurrentCluster
+        - ParameterName: 'wlm_json_configuration'
+          ParameterValue: !Sub '[ { "query_group" : [ ],"query_group_wild_card" : 0,"user_group" : [ ],"user_group_wild_card" : 0,"concurrency_scaling" : "${ConcurrencyScaling}","rules" : [ {  "rule_name" : "DiskSpilling",  "predicate" : [ { "metric_name" : "query_temp_blocks_to_disk", "operator" : ">", "value" : 100000  } ], "action" : "log"}, {  "rule_name" : "QueryRunningMoreThan30min",  "predicate" : [ { "metric_name" : "query_execution_time", "operator" : ">", "value" : 1800 } ],  "action": "change_query_priority", "value": "normal"} ],"priority" : "high","queue_type" : "auto","auto_wlm" : true, "name": "HighPriorityQueue1"}, {"user_group": [],"query_group": [],"auto_wlm": true,"queue_type": "auto","name": "Default Queue"}, {"short_query_queue" : true } ]'
+      Tags:
+        - Key: Name
+          Value:
+            !Join [
+              '-',
+              [
+                !Ref TagName,
+                !Ref 'AWS::StackName',
+                'Primary Cluster Parameter group',
+              ],
+            ]
+        - Key: Environment
+          Value: !Ref TagEnvironment
+  RedshiftClusterSubnetGroup:
+    Type: 'AWS::Redshift::ClusterSubnetGroup'
+    Properties:
+      Description: Cluster subnet group
+      SubnetIds:
+        - !Ref PublicSubnet1ID
+        - !Ref PublicSubnet2ID
+      Tags:
+        - Key: Name
+          Value:
+            !Join [
+              '-',
+              [
+                !Ref TagName,
+                !Ref 'AWS::StackName',
+                'Primary Redshift Cluster Subnet group',
+              ],
+            ]
+        - Key: Environment
+          Value: !Ref TagEnvironment
+  SecretRedshiftMasterUser:
+    Type: 'AWS::SecretsManager::Secret'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+          ignore_reasons:
+            E9101: This set by AWS RedShift
+    Properties:
+      Description: "Secrets Manager to store Redshift master user credentials"
+      GenerateSecretString:
+        SecretStringTemplate: !Sub
+        - '{"username": "${MasterUsername}"}'
+        - {MasterUsername: !Ref MasterUsername}
+        GenerateStringKey: password
+        PasswordLength: !FindInMap [ Redshift, Password, Length]
+        ExcludePunctuation: true
+  SecretAttachmentRedshiftMasterUser:
+    Type: 'AWS::SecretsManager::SecretTargetAttachment'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+          ignore_reasons:
+            E9101: This set by AWS RedShift
+    Properties:
+      SecretId: !Ref SecretRedshiftMasterUser
+      TargetId: !Ref RedshiftCluster
+      TargetType: AWS::Redshift::Cluster
+  RotationScheduleRedshiftMasterUser:
+    Type: 'AWS::SecretsManager::RotationSchedule'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+            - ERedshiftClusterEncrypted
+          ignore_reasons:
+            E9101: This set by AWS RedShift
+            ERedshiftClusterEncrypted: Encrypted by Default
+    DependsOn: SecretAttachmentRedshiftMasterUser
+    Properties:
+      SecretId: !Ref SecretRedshiftMasterUser
+      HostedRotationLambda:
+        RotationLambdaName: !Sub
+          - ${StackID}-RtnRSMtrUsrPwd
+          - StackID: !Select [ 2, !Split [ /, !Ref AWS::StackId ] ]
+        RotationType: RedshiftSingleUser
+      RotationRules:
+        AutomaticallyAfterDays: !Ref AutoPasswordRotationIntervalDays
+  RedshiftCluster:
+    DependsOn:
+      - SecretRedshiftMasterUser
+    Type: 'AWS::Redshift::Cluster'
+    DeletionPolicy: 'Snapshot'
+    UpdateReplacePolicy: 'Snapshot'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+            - ERedshiftClusterEncrypted
+          ignore_reasons:
+            E9101: This set by AWS RedShift
+            ERedshiftClusterEncrypted: Encrypted by Default
+    Properties:
+      ClusterType:
+        !If [RedshiftSingleNodeClusterCondition, 'single-node', 'multi-node']
+      ClusterIdentifier: !Join ["-", [!Ref DatabaseName, !Ref 'AWS::StackName']]
+      NumberOfNodes:
+        !If [
+          RedshiftSingleNodeClusterCondition,
+          !Ref 'AWS::NoValue',
+          !Ref NumberOfNodes
+        ]
+      NodeType: !Ref NodeType
+      DBName: !Ref DatabaseName
+      KmsKeyId:  !If [IsEncryptionAtRest, !Ref CMKeyRedshiftCluster, !Ref 'AWS::NoValue']
+      Encrypted: !Ref EncryptionAtRest
+      Port: !Ref RedshiftClusterPort
+      MasterUsername: !Join ['', ['{{resolve:secretsmanager:', !Ref SecretRedshiftMasterUser, ':SecretString:username}}' ]]
+      MasterUserPassword: !Join ['', ['{{resolve:secretsmanager:', !Ref SecretRedshiftMasterUser, ':SecretString:password}}' ]]
+      ClusterParameterGroupName: !Ref RedshiftClusterParameterGroup
+      AquaConfigurationStatus:
+        !If [IsRA3, !Ref EnableAQUA, !Ref 'AWS::NoValue']
+      EnhancedVpcRouting: !Ref EnableVPCEnhancedRouting
+      MaintenanceTrackName: !Ref MaintenanceTrack
+      VpcSecurityGroupIds:
+        - !Ref RedshiftSecurityGroup
+      AutomatedSnapshotRetentionPeriod: !If [IsProd, 35, 8]
+      PubliclyAccessible: "true"
+      ClusterSubnetGroupName: !Ref RedshiftClusterSubnetGroup
+      LoggingProperties: !If
+        - IsEnableLoggingToS3
+        - BucketName: !Ref RedshiftLoggingS3Bucket
+          S3KeyPrefix: !Ref S3BucketPrefix
+        - !Ref 'AWS::NoValue'
+      IamRoles:
+        - !GetAtt RedshiftIAMRole.Arn
+      Tags:
+        - Key: Name
+          Value:
+            !Join [
+              '-',
+              [!Ref TagName, !Ref 'AWS::StackName', 'Redshift-Cluster'],
+            ]
+        - Key: Environment
+          Value: !Ref TagEnvironment
+  RedshiftIAMRole:
+    Type: 'AWS::IAM::Role'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - EIAMPolicyActionWildcard
+          ignore_reasons:
+            EIAMPolicyActionWildcard: This is based on AWS Documentation.
+    Properties:
+      RoleName: !Sub
+      - ${StackID}-Redshift-IAM-Role
+      - StackID: !Select [ 2, !Split [ /, !Ref AWS::StackId ] ]
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'redshift.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      Path: /
+      Policies:
+        - PolicyName: s3accesspolicy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 's3:*'
+                Resource: "*"
+
+  ConnectorProfile:
+    Type: 'AWS::AppFlow::ConnectorProfile'
+    DependsOn : RedshiftCluster
+    Properties:
+      ConnectionMode: !Ref ConnectionModeVal
+      ConnectorProfileConfig:
+        ConnectorProfileProperties:
+          Redshift:
+            BucketName: !Ref RedshiftLoggingS3Bucket
+            BucketPrefix: !Ref S3BucketPrefix
+            DatabaseUrl: !Sub "jdbc:redshift://${RedshiftCluster.Endpoint.Address}:${RedshiftCluster.Endpoint.Port}/${DatabaseName}"
+            RoleArn: !GetAtt RedshiftIAMRole.Arn
+        ConnectorProfileCredentials:
+          Redshift:
+            Password: !Join ['', ['{{resolve:secretsmanager:', !Ref SecretRedshiftMasterUser, ':SecretString:password}}' ]]
+            Username: !Join ['', ['{{resolve:secretsmanager:', !Ref SecretRedshiftMasterUser, ':SecretString:username}}' ]]
+      ConnectorProfileName: !Ref ConnectorProfileName
+      ConnectorType: !Ref ConnectorType
+
+Outputs:
+  ConnectorType:
+    Value: !Ref ConnectorType
+    Description: Type of connection
+    Export:
+      Name: "ConnectorType"
+  ConnectorProfileName:
+    Value : !Ref ConnectorProfileName
+    Description: Connector Profile Name
+    Export:
+      Name: "CPRN"
+  StackName:
+    Description: 'Stack name'
+    Value: !Sub '${AWS::StackName}'
+  RedshiftClusterEndpoint:
+    Description: Redshift cluster endpoint address with port
+    Value: !Sub '${RedshiftCluster.Endpoint.Address}:${RedshiftCluster.Endpoint.Port}'
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftClusterEndpoint'
+  RedshiftEndpoint:
+    Description: Redshift endpoint address
+    Value: !Sub '${RedshiftCluster.Endpoint.Address}'
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftEndpoint'
+  RedshiftPort:
+    Description: Redshift endpoint port
+    Value: !Sub '${RedshiftCluster.Endpoint.Port}'
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftPort'
+  RedshiftCluster:
+    Description: Redshift cluser identifier
+    Value: !Sub '${RedshiftCluster}'
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftCluster'
+  RedshiftParameterGroupName:
+    Description: Redshift parameter group
+    Value: !Ref RedshiftClusterParameterGroup
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftParameterGroupName'
+  RedshiftDatabaseName:
+    Description: Redshift database name
+    Value: !Ref DatabaseName
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftDatabaseName'
+  RedshiftUsername:
+    Value: !Ref MasterUsername
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftUsername'
+  SecretRedshiftMasterUserSecret:
+    Description: Redshift Master user's secret
+    Value: !Ref SecretRedshiftMasterUser
+  RedshiftLoggingS3Bucket:
+    Description: Amazon S3 bucket created for audit logging
+    Condition: IsEnableLoggingToS3
+    Value: !Ref RedshiftLoggingS3Bucket
+    Export:
+      Name: "RedshiftLoggingS3Bucket"
+  RedshiftClusterIAMRole:
+    Description: IAM Role assigned to Redshift cluster
+    Value: !GetAtt RedshiftIAMRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-RedshiftClusterIAMRole'
+  DataBaseEndpoint:
+    Value: !Sub ${RedshiftCluster.Endpoint.Address}
+    Description: RedshiftCluster Database Endpoint
+    Export:
+      Name: "RedshiftClusterDatabaseName"
+  PSQLCommandLine:
+    Description: PSQL command line
+    Value: !Join
+      - ''
+      - - 'psql -h '
+        - !GetAtt 'RedshiftCluster.Endpoint.Address'
+        - ' -p '
+        - !GetAtt 'RedshiftCluster.Endpoint.Port'
+        - ' -U '
+        - !Ref MasterUsername
+        - ' -d '
+        - !Ref DatabaseName
+  RedshiftClusterJDBCUrl:
+    Value: !Sub "jdbc:redshift://${RedshiftCluster.Endpoint.Address}:${RedshiftCluster.Endpoint.Port}/${DatabaseName}"
+
+  S3BucketPrefix:
+    Value: !Ref S3BucketPrefix
+    Description: S3 bucket log prefix
+    Export:
+      Name: "S3BucketPrefix"
