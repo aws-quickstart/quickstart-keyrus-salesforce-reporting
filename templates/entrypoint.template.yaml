@@ -16,6 +16,18 @@ Metadata:
           - QSS3KeyPrefix
           - QSS3BucketRegion
       - Label:
+          default: Network configuration
+        Parameters:
+          - AvailabilityZones
+          - VPCCIDR
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - RemoteAccessCIDR1
+          - RemoteAccessCIDR2
+          - RemoteAccessCIDR3
+      - Label:
           default: Amazon AppFlow configuration
         Parameters:
           - ConnectorProfileNameSalesforce
@@ -46,8 +58,6 @@ Metadata:
           - MaintenanceTrack
           - TagName
           - TagEnvironment
-          - ClassB
-          - RemoteAccessCIDR
     ParameterLabels:
       QSS3BucketName:
         default: Quick Start S3 bucket name
@@ -55,9 +65,23 @@ Metadata:
         default: Quick Start S3 key prefix
       QSS3BucketRegion:
         default: Quick Start S3 bucket Region
-      ClassB: 
-        default: Class B of VPC
-      RemoteAccessCIDR:
+      AvailabilityZones:
+        default: Availability Zones
+      VPCCIDR:
+        default: VPC CIDR
+      PrivateSubnet1CIDR:
+        default: Private subnet 1A CIDR
+      PrivateSubnet2CIDR:
+        default: Private subnet 2A CIDR
+      PublicSubnet1CIDR:
+        default: Public subnet 1 CIDR
+      PublicSubnet2CIDR:
+        default: Public subnet 2 CIDR
+      RemoteAccessCIDR1:
+        default: Comma-delimited list of three CIDR IPs in us-east-1
+      RemoteAccessCIDR2:
+        default: Comma-delimited list of three CIDR IPs in us-east-1
+      RemoteAccessCIDR3:
         default: Comma-delimited list of three CIDR IPs in us-east-1
       DatabaseName:
         default: The name of the first database to be created when the cluster is created
@@ -67,7 +91,7 @@ Metadata:
         default: The number of compute nodes in the cluster
       NodeType:
         default: The node type determines the CPU, RAM, storage capacity, and storage drive type for each node
-      AutoPasswordRotationIntervalDays: 
+      AutoPasswordRotationIntervalDays:
         default: Password rotation refers to the changing/resetting of a password(s)
       S3BucketPrefix:
         default: S3 Bucket Prefix for logging bucket
@@ -75,25 +99,25 @@ Metadata:
         default: Enables or disables logging to an S3 bucket.
       MasterUsername:
         default: Connection Profile name for RedShift
-      MaxConcurrentCluster: 
+      MaxConcurrentCluster:
         default: The maximum number of concurrency scaling Redshift clusters
       ConnectionModeVal:
         default: Connection Mode for Connection Profile
       ConnectorType:
         default: Connection Profile Type
-      TagName: 
-        default: Company name 
+      TagName:
+        default: Company name
       TagEnvironment:
         default: Environment tag
-      ConnectorProfileName: 
+      ConnectorProfileName:
         default: Connection name for Redshift cluster
-      MaintenanceTrack: 
+      MaintenanceTrack:
         default: Amazon Redshift version to apply during a maintenance window
       EnableVPCEnhancedRouting:
         default: Enhanced VPC routing in Amazon Redshift
-      EnableAQUA: 
+      EnableAQUA:
         default: Advanced Query Accelerator
-      ConcurrencyScaling: 
+      ConcurrencyScaling:
         default: You can support virtually unlimited concurrent users and concurrent queries, with consistently fast query performance.
       EncryptionAtRest:
         default: Enables or disables encryption at rest of the Redshift database.
@@ -107,7 +131,7 @@ Metadata:
         default: "Name of the Account object flow"
       OpportunitySalesforce:
         default: "Name of the Oportunity object flow"
-      ConnectorProfileNameSalesforce: 
+      ConnectorProfileNameSalesforce:
         default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
 Parameters:
   QSS3BucketName:
@@ -134,21 +158,55 @@ Parameters:
     Description: Region where the Quick Start S3 bucket (QSS3BucketName) is
       hosted. When using your own bucket, you must specify this value.
     Type: String
-  # ChildStackPath: 
-    # Description: "Path to child stack cfts"
-    # Type: String
-    # Default: "https://my-bucket-s3-name-s3-appflow.s3.amazonaws.com"
-  ClassB:
-    Description: Class B of VPC (173.XXX.0.0/16)
-    Type: Number
-    Default: 38
-    ConstraintDescription: 'Must be in the range [0-255]'
-    MinValue: 0
-    MaxValue: 255
-  RemoteAccessCIDR:
+  AvailabilityZones:
+    Description: 'Select 2 Availability Zones to use for the subnets in the VPC.'
+    Type: List<AWS::EC2::AvailabilityZone::Name>
+  VPCCIDR:
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.0.0/16
+    Description: CIDR block for the VPC.
+    Type: String
+  PrivateSubnet1CIDR:
+    AllowedPattern: >-
+      ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.0.0/19
+    Description: 'CIDR block for private subnet 1, located in Availability Zone 1.'
+    Type: String
+  PrivateSubnet2CIDR:
+    AllowedPattern: >-
+      ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
+    Default: 10.0.32.0/19
+    Description: 'CIDR block for private subnet 2, located in Availability Zone 2.'
+    Type: String
+  PublicSubnet1CIDR:
+    AllowedPattern: >-
+      ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.128.0/20
+    Description: 'CIDR block for the public DMZ subnet 1, located in Availability Zone 1.'
+    Type: String
+  PublicSubnet2CIDR:
+    AllowedPattern: >-
+      ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    Default: 10.0.144.0/20
+    Description: 'CIDR block for the public DMZ subnet 2, located in Availability Zone 2.'
+    Type: String
+  RemoteAccessCIDR1:
     Description: Comma-delimited list of three CIDR IPs
     Type: String
-    Default: "3.235.189.100/30,3.235.189.96/30,44.194.111.224/30" 
+    Default: 3.235.189.100/30
+  RemoteAccessCIDR2:
+    Description: Comma-delimited list of three CIDR IPs
+    Type: String
+    Default: 3.235.189.96/30
+  RemoteAccessCIDR3:
+    Description: Comma-delimited list of three CIDR IPs
+    Type: String
+    Default: 44.194.111.224/30
   DatabaseName:
     Description: The name of the first database to be created when the cluster is created.
     Type: String
@@ -163,7 +221,7 @@ Parameters:
     Type: Number
     Default: '2'
   NodeType:
-    Description: The type of node to be provisioned 
+    Description: The type of node to be provisioned
     Type: String
     Default: dc2.large
     AllowedValues:
@@ -175,13 +233,13 @@ Parameters:
       - ds2.xlarge
       - ds2.8xlarge
   AutoPasswordRotationIntervalDays:
-    Description: Number of days after which master user password will be auto-rotated
+    Description: Number of days after which user password will be auto-rotated
     Type: String
     Default: 30
     AllowedPattern: '([0-9])*'
     ConstraintDescription: must be a number
   MasterUsername:
-    Description: The user name that is associated with the master user account for the cluster that is being created.
+    Description: The user name that is associated with the user account for the cluster that is being created.
     Type: String
     Default: test
     AllowedPattern: '([a-z])([a-z]|[0-9])*'
@@ -269,24 +327,24 @@ Parameters:
     AllowedValues:
       - 'Redshift'
       # - 'Salesforce'
-    Description: Connection Profile Type   
+    Description: Connection Profile Type
   AccountSalesforce:
     Description: Salesforce Account Objects
     Default: Account-Salesforce
     Type: String
-  CaseSalesforce: 
+  CaseSalesforce:
     Description: Salesforce Case Objects
     Default: Case-Salesforce
     Type: String
-  ContactSalesforce: 
+  ContactSalesforce:
     Description: Salesforce Contact Objects
     Default: Contact-Salesforce
     Type: String
-  LeadSalesforce: 
+  LeadSalesforce:
     Description: Salesforce Lead Objects
     Default: Lead-Salesforce
     Type: String
-  OpportunitySalesforce: 
+  OpportunitySalesforce:
     Description: Salesforce Opportunity Objects
     Default: Opportunity-Salesforce
     Type: String
@@ -294,18 +352,71 @@ Parameters:
     Description: "Select the Production radio box from the Salesforce environment section. Enter the connection name and click Continue. The Connection name must match in every single Cloudformation template for AppFlow logs or any other desired name."
     Type: String
     Default: aws_demo
-
 Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
+  UsingDefaultBucket: !Equals
+    - !Ref QSS3BucketName
+    - 'aws-quickstart'
 Resources:
-  SalesforceRedshift:
-    Type: AWS::CloudFormation::Stack
-    Description: Create VPC, RedShift,S3,etc 
+  VPCStack:
+    Type: 'AWS::CloudFormation::Stack'
     Properties:
-      TemplateURL: !Sub ${ChildStackPath}/quickstart-salesforce-redshift.template.yaml
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}submodules/quickstart-aws-vpc/templates/aws-vpc.template.yaml'
+        - S3Region: !If [UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion]
+          S3Bucket: !If [UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName]
       Parameters:
-        ClassB: !Ref ClassB
-        RemoteAccessCIDR: !Ref RemoteAccessCIDR
+        AvailabilityZones: !Join
+          - ','
+          - !Ref AvailabilityZones
+        NumberOfAZs: '2'
+        PrivateSubnet1ACIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2ACIDR: !Ref PrivateSubnet2CIDR
+        PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
+        PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
+        VPCCIDR: !Ref VPCCIDR
+  SalesforceRedshift:
+    DependsOn: VPCStack
+    Type: AWS::CloudFormation::Stack
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+          ignore_reasons:
+            E9101: This is based on what RedShift service uses.
+    Properties:
+      TemplateURL: !Sub
+        - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/quickstart-salesforce-redshift.template.yaml'
+        - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
+          S3Bucket: !If [ UsingDefaultBucket, !Sub '${QSS3BucketName}-${AWS::Region}', !Ref QSS3BucketName ]
+      Parameters:
+        RemoteAccessCIDR1: !Ref RemoteAccessCIDR1
+        RemoteAccessCIDR2: !Ref RemoteAccessCIDR2
+        RemoteAccessCIDR3: !Ref RemoteAccessCIDR3
+        PublicSubnet1ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PublicSubnet1ID
+        PublicSubnet2ID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PublicSubnet2ID
+        PrivateSubnet1AID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PrivateSubnet1AID
+        PrivateSubnet2AID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.PrivateSubnet2AID
+        VPCID:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.VPCID
+        VPCCIDR:
+          Fn::GetAtt:
+          - VPCStack
+          - Outputs.VPCCIDR
         DatabaseName: !Ref DatabaseName
         RedshiftClusterPort: !Ref RedshiftClusterPort
         NumberOfNodes: !Ref NumberOfNodes
@@ -325,12 +436,10 @@ Resources:
         ConnectionModeVal: !Ref ConnectionModeVal
         ConnectorProfileName: !Ref ConnectorProfileName
         ConnectorType: !Ref ConnectorType
-
   AppflowAccount:
     DependsOn: SalesforceRedshift
     Type: AWS::CloudFormation::Stack
     Properties:
-      # TemplateURL: !Sub ${ChildStackPath}/appflow-salesforce-account.template.yaml
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/appflow-salesforce-account.template.yaml'
         - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
@@ -338,14 +447,10 @@ Resources:
       Parameters:
         AccountSalesforce: !Ref AccountSalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        QSS3BucketName: !Ref QSS3BucketName
-        QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
-        
   AppflowCase:
     DependsOn: SalesforceRedshift
     Type: AWS::CloudFormation::Stack
     Properties:
-      # TemplateURL: !Sub ${ChildStackPath}/appflow-salesforce-case.template.yaml
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/appflow-salesforce-case.template.yaml'
         - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
@@ -353,14 +458,10 @@ Resources:
       Parameters:
         CaseSalesforce: !Ref CaseSalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
-
   AppflowContact:
     DependsOn: SalesforceRedshift
     Type: AWS::CloudFormation::Stack
     Properties:
-      # TemplateURL: !Sub ${ChildStackPath}/appflow-salesforce-contact.template.yaml
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/appflow-salesforce-contact.template.yaml'
         - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
@@ -368,14 +469,10 @@ Resources:
       Parameters:
         ContactSalesforce: !Ref ContactSalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
-
   AppflowLead:
     DependsOn: SalesforceRedshift
     Type: AWS::CloudFormation::Stack
     Properties:
-      # TemplateURL: !Sub ${ChildStackPath}/appflow-salesforce-lead.template.yaml
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/appflow-salesforce-lead.template.yaml'
         - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
@@ -383,13 +480,10 @@ Resources:
       Parameters:
         LeadSalesforce: !Ref LeadSalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'
   AppflowOpportunity:
     DependsOn: SalesforceRedshift
     Type: AWS::CloudFormation::Stack
     Properties:
-      # TemplateURL: !Sub ${ChildStackPath}/appflow-salesforce-opportunity.template.yaml
       TemplateURL: !Sub
         - 'https://${S3Bucket}.s3.${S3Region}.${AWS::URLSuffix}/${QSS3KeyPrefix}templates/appflow-salesforce-opportunity.template.yaml'
         - S3Region: !If [ UsingDefaultBucket, !Ref 'AWS::Region', !Ref QSS3BucketRegion ]
@@ -397,5 +491,3 @@ Resources:
       Parameters:
         OpportunitySalesforce: !Ref OpportunitySalesforce
         ConnectorProfileNameSalesforce: !Ref ConnectorProfileNameSalesforce
-        # QSS3BucketName: !Ref QSS3BucketName
-        # QSS3KeyPrefix: !Sub '${QSS3KeyPrefix}'

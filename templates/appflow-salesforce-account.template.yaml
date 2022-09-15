@@ -16,8 +16,8 @@ Metadata:
     ParameterLabels:
       AccountSalesforce:
         default: "Name of the Account object flow"
-      ConnectorProfileNameSalesforce: 
-        default: Production radio box from the Salesforce environment section (connection Must be created before deploying ) 
+      ConnectorProfileNameSalesforce:
+        default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
 Parameters:
   AccountSalesforce:
     Description: "Name of the flow"
@@ -29,6 +29,13 @@ Parameters:
 Resources:
   SalesforceFlow:
     Type: AWS::AppFlow::Flow
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+          ignore_reasons:
+            E9101: This is by design due to Salesforce terminology.
     Properties:
       Description: AppFlow Flow integrating Salesforce_Account with a Redshift
 
@@ -680,8 +687,6 @@ Resources:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonS3ObjectLambdaExecutionRolePolicy
         - !Sub arn:${AWS::Partition}:iam::aws:policy/SecretsManagerReadWrite
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonAppFlowFullAccess
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonS3FullAccess
-
   ActivateAppFlowOnStart:
     Type: AWS::Lambda::Function
     DependsOn: LambdaExecutionRole
@@ -721,6 +726,5 @@ Resources:
     Properties:
       ServiceToken: !GetAtt ActivateAppFlowOnStart.Arn
 
-  
-  
-  
+
+

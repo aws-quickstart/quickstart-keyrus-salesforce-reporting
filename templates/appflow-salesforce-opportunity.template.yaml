@@ -8,7 +8,6 @@ Metadata:
     Order: 7
   AWS::CloudFormation::Interface:
     ParameterGroups:
-
       - Label:
           default: Amazon AppFlow configuration
         Parameters:
@@ -17,17 +16,15 @@ Metadata:
     ParameterLabels:
       OpportunitySalesforce:
         default: "Name of the Oportunity object flow"
-      ConnectorProfileNameSalesforce: 
+      ConnectorProfileNameSalesforce:
         default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
 Parameters:
-  OpportunitySalesforce: 
+  OpportunitySalesforce:
     Description: Salesforce Opportunity Objects
     Type: String
   ConnectorProfileNameSalesforce:
     Description: "Select the Production radio box from the Salesforce environment section. Enter the connection name and click Continue. The Connection name must match in every single Cloudformation template for AppFlow logs or any other desired name."
     Type: String
-Conditions:
-  UsingDefaultBucket: !Equals [!Ref QSS3BucketName, 'aws-quickstart']
 Resources:
   SalesforceFlow:
     Type: AWS::AppFlow::Flow
@@ -489,10 +486,9 @@ Resources:
               Value: character varying
             - Key: SOURCE_DATA_TYPE
               Value: textarea
-
+              
       # TriggerConfig:
       #   TriggerType: OnDemand
-
       TriggerConfig:
         TriggerType: Scheduled
         TriggerProperties:
@@ -520,8 +516,6 @@ Resources:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonS3ObjectLambdaExecutionRolePolicy
         - !Sub arn:${AWS::Partition}:iam::aws:policy/SecretsManagerReadWrite
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonAppFlowFullAccess
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonS3FullAccess
-
   ActivateAppFlowOnStart:
     Type: AWS::Lambda::Function
     DependsOn: LambdaExecutionRole
@@ -561,4 +555,3 @@ Resources:
     Properties:
       ServiceToken: !GetAtt ActivateAppFlowOnStart.Arn
 
- 

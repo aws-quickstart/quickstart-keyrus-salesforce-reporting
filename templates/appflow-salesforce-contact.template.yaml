@@ -16,10 +16,10 @@ Metadata:
     ParameterLabels:
       ContactSalesforce:
         default: "Name of the Contact object flow"
-      ConnectorProfileNameSalesforce: 
+      ConnectorProfileNameSalesforce:
         default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
 Parameters:
-  ContactSalesforce: 
+  ContactSalesforce:
     Description: Salesforce Contact Objects
     Type: String
   ConnectorProfileNameSalesforce:
@@ -28,9 +28,15 @@ Parameters:
 Resources:
   SalesforceFlow:
     Type: AWS::AppFlow::Flow
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E9101
+          ignore_reasons:
+            E9101: This is by design due to Salesforce terminology.
     Properties:
       Description: AppFlow Flow integrating Saleforce with a Redshift
-
       DestinationFlowConfigList:
         - ConnectorType: !ImportValue ConnectorType
           ConnectorProfileName: !ImportValue CPRN
@@ -43,7 +49,6 @@ Resources:
                 BucketName: !ImportValue RedshiftLoggingS3Bucket
               IntermediateBucketName: !ImportValue RedshiftLoggingS3Bucket
               Object: ods.contact
-
       FlowName: !Ref ContactSalesforce
       SourceFlowConfig:
         ConnectorProfileName: !Ref ConnectorProfileNameSalesforce
@@ -53,7 +58,6 @@ Resources:
             EnableDynamicFieldUpdate: false
             IncludeDeletedRecords: false
             Object: Contact
-
       Tasks:
         - TaskType: Filter
           SourceFields:
@@ -841,8 +845,6 @@ Resources:
         - !Sub arn:${AWS::Partition}:iam::aws:policy/service-role/AmazonS3ObjectLambdaExecutionRolePolicy
         - !Sub arn:${AWS::Partition}:iam::aws:policy/SecretsManagerReadWrite
         - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonAppFlowFullAccess
-        - !Sub arn:${AWS::Partition}:iam::aws:policy/AmazonS3FullAccess
-
   ActivateAppFlowOnStart:
     Type: AWS::Lambda::Function
     DependsOn: LambdaExecutionRole
@@ -885,4 +887,3 @@ Resources:
 
 
 
-  
