@@ -14,15 +14,15 @@ As shown in <<architecture1>>, this Quick Start sets up the following:
 * A highly available architecture that spans two Availability Zones.
 * A virtual private cloud (VPC) configured with public and private subnets, according to AWS
 best practices, to provide you with your own virtual network on AWS.
-// * In the public subnets:
-* Managed network address translation (NAT) gateways to allow outbound
+* In the public subnets:
+** Managed network address translation (NAT) gateways to allow outbound
 internet access for resources in the private subnets.*
 // **The Cloudformation template creates the following resources:
-* Amazon Redshift clusters
-* Redshift Connector profile name  ex. “name”
+** Amazon Redshift clusters
 * Amazon S3
-* Security group configuration to allow Amazon AppFlow to connect to Amazon Redshift cluster
-* Elastic IP address
+** Security group configuration to allow Amazon AppFlow to connect to Amazon Redshift cluster
+** Elastic IP address
+* Amazon S3
 * AWS Identity and Access Management (IAM)
 * AWS Secret Manager
 * An Amazon AppFlow flow to create Mapping method to  transfer Salesforce data to Amazon Redshift
@@ -30,12 +30,9 @@ internet access for resources in the private subnets.*
     - We have provided a sample SWL mapping file for objects: account, contact, case, lead, opportunity
 
 * Custom Lambda function resource - create a schema with custom tables inside the Redshift cluster and trigger AppFlow to run it from Salesforce to Redshift.
-    - Account object
-    - Contact object
-    - Lead object
-    - Opportunity object
-    - Case object
-* Private subnets are used by RedShift Cluster.
+
+* In the private subnets:
+** Used by the RedShift Cluster nodes.
 
 
 
