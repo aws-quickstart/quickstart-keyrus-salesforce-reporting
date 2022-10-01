@@ -1,62 +1,57 @@
-//Include any predeployment steps here, such as signing up for a Marketplace AMI or making any changes to a partner account. If there are no predeployment steps, leave this file empty.
-
 == Predeployment steps
 
-Complete the following steps before you deploy the Quick Start.
+Complete the following steps before you deploy the Partner Solution.
 
-=== Sign Up for Salesforce account
-1. If you don't have already one, sign up for Salesforce account link : https://catalog.us-east-1.prod.workshops.aws/workshops/9787ec94-1ace-44cc-91e5-976ad7ddc0b1/en-US/salesforce/salesforce-signup[SalesForce Signup]
-
-  * Note: The Salesforce lab in this workshop requires that you have a Developer Edition trial account created in Salesforce. If you already have one available you can skip the "Sign Up Section" and proceed to Enabling Change Data Capture Section.
+=== Sign up for a Salesforce account
+If you don't already have a Salesforce account, https://catalog.us-east-1.prod.workshops.aws/workshops/9787ec94-1ace-44cc-91e5-976ad7ddc0b1/en-US/salesforce/salesforce-signup[sign up for one^].
 
 // Configure Salesforce connection go to:  https://developer.salesforce.com/
 
+//TODO Troy, Why is the above line commented out; will we be adding it?
 
-=== Sign in to AWS Console and AppFlow to create AWS PrivateLink.
-[start=2]
-2. PrivateLink provides private connectivity between VPCs, AWS services, and on-premise applications on the Amazon Network. Connect your existing or new AWS VPC to a Salesforce-managed VPC with PrivateLink. Then, all the data traffic flowing between your VPC and your Salesforce org is automatically routed through the connection.
+=== Connect your VPC in the AWS Cloud with your Salesforce-managed VPC
 
+When you connect your VPC in the AWS Cloud with your Salesforce-managed VPC using AWS PrivateLink, data traffic flows between your VPCs automatically. Connect your VPCs as follows.
 
-==== From AWS Console navigate to the AppFlow service on AWS
+. Sign in to the AWS Management Console and open the https://us-east-1.console.aws.amazon.com/appflow/[Amazon AppFlow console^].
 
+. In the navigation pane, choose *Connections*, and then choose *Salesforce* as your connector.
 
-[#AppflowConsole]
+. Choose *Create connection*. If prompted to log in to Salesforce, do so.
 
-image::../docs/deployment_guide/images/aws-quickstart-appflow.png[]
+. Choose Salesforce from the dropdown list of connections, and choose *Connect*. If you have used AppFlow previously in your account, you may see *Create new connection* in the *Choose Salesforce connection* dropdown list.
 
-==== Click the Connection button. Under connection drop-down list. Click Salesforce as shown in the image below.
-
-[#Connection]
-image::../docs/deployment_guide/images/aws-quickstart-predeployment-connetion.png[]
-
-==== Create New Connection
- - Click Create connection
-
-[#ConnectionCreate]
-image::../docs/deployment_guide/images/aws-quickstart-predeployment-salesforce-connection.png[]
-
-
-* Note: This is required when you're accessing Salesforce for the first time within AppFlow service. If you have configured Salesforce Connection before, select the Salesforce connection from Existing connections drop down list. Click Continue
-
-
-
-[#ConenctionName]
+. On the *Connect to Salesforce* screen (shown in <<#ConnectionName>>), choose *Production* for your Salesforce environment, and enter your connection name.
++
+[#ConnectionName]
+.The "Connect to Salesforce" screen in the Amazon AppFlow console
+[link=image::../docs/deployment_guide/images/aws-quickstart-predeployment-connect-salesforce.png]
 image::../docs/deployment_guide/images/aws-quickstart-predeployment-connect-salesforce.png[]
 
-* Note: Connection name will be passed to the Cloudformation template in deployment As shown in <<ApplowConnectionCloudformation>> [ApplowConnectionCloudformation]
+. Log in to Salesforce sight in screen.
 
+. Allow Amazon AppFlow to access your Salesforce account.
+
+When you deploy this Partner Solution, your connection name will be passed to the CloudFormation template, as shown in <<ApplowConnectionCloudformation>>.
 
 [#ApplowConnectionCloudformation]
-
+.CloudFormation template section for configuring Amazon AppFlow
+[link=image::../docs/deployment_guide/images/aws-quickstart-predeployment-appflow-connection-example.png]
 image::../docs/deployment_guide/images/aws-quickstart-predeployment-appflow-connection-example.png[]
-Cloudformation template Amazon Appflow configuration
 
-[#LoginSalesforce]
-image::../docs/deployment_guide/images/aws-quickstart-predeployment-salesforce-connection.png[]
-[start=3]
-3. Click Connect button. If you have used AppFlow previously in your account, you may see Create new connection option in the Choose Salesforce connection drop down list.
 
-4. Select Production radio box from Salesforce environment section. Enter the connection name and click Continue.
+//TODO Troy, How does this predeployment process work for people who want to deploy to a new VPC? Or who have a VPC but don't have PrivateLink?
 
-- Log in to Salesforce sight in screen. Allow Amazon AppFlow to access information in your Salesforce Account.
-- Allow Amazon AppFlow to access information in your Salesforce.
+//TODO Troy, Are steps 2-4 correct as edited?
+
+//TODO Troy, What if people want to deploy into a sandbox environment? (The parameter description seems to indicate that we have to be in a production environment. I'm not clear on what the param description implies; let's look at that together.)
+
+//TODO Troy, How do we "allow" Amazon AppFlow to access our Salesforce account?
+
+//TODO Troy, What is the "Salesforce sight in screen"?
+
+//TODO Troy, Can we choose whatever connection name we want? Any constraints, suggestions, things to avoid?
+
+//TODO Troy, Where in these steps do we use PrivateLink?
+
+//TODO Marcia to delete Fig 3 eventually; we'll be changing the param description.
