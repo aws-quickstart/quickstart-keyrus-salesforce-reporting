@@ -1,45 +1,47 @@
 :xrefstyle: short
 
-Deploying this Quick Start with default parameters builds the following {partner-product-short-name} environment in the
+Deploying this Partner Solution with default parameters builds the following {partner-product-short-name} environment in the
 AWS Cloud.
 
-// Replace this example diagram with your own. Follow our wiki guidelines: https://w.amazon.com/bin/view/AWS_Quick_Starts/Process_for_PSAs/#HPrepareyourarchitecturediagram. Upload your source PowerPoint file to the GitHub {deployment name}/docs/images/ directory in its repository.
-
 [#architecture1]
-.Quick Start architecture for {partner-product-short-name} on AWS
-image::../docs/deployment_guide/images/architecture_diagram.png[Architecture]
+.Partner Solution architecture for {partner-product-short-name} on AWS
+image::../docs/deployment_guide/images/keyrus-salesforce-architecture_diagram.png[Architecture, 90%]
 
-As shown in <<architecture1>>, this Quick Start sets up the following:
+As shown in <<architecture1>>, this Partner Solution sets up the following:
 
 * A highly available architecture that spans two Availability Zones.
 * A virtual private cloud (VPC) configured with public and private subnets, according to AWS
 best practices, to provide you with your own virtual network on AWS.
-* Globally in AWS:
-** AWS PrivateLink
-** Amazon S3
-** AWS Identity and Access Management (IAM)
-** AWS Secret Manager
-** AWS KMS
-** An Amazon AppFlow flow to create Mapping method to  transfer Salesforce data to Amazon Redshift
-    - Mapping will field all destination fields
-    - We have provided a sample SWL mapping file for objects: account, contact, case, lead, opportunity
-** Custom Lambda function resource
-    - create a schema with custom tables inside the Redshift cluster and trigger AppFlow to run it from Salesforce to Redshift.
 
-* In the public subnets:
-** Managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.
-** Amazon Redshift cluster
+* In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.
 
-* In the private subnets:
-** Used by the RedShift Cluster Dense Compute nodes.
+* In the private subnets, an Amazon RedShift cluster of Dense Compute (DC) nodes, one in each subnet. These nodes ____.
 
+* AWS PrivateLink to ____.
 
+* Amazon AppFlow to create a mapping method to transfer Salesforce data to Amazon Redshift. Mapping will field all destination fields. This solution includes a sample SWL mapping file for objects: account, contact, case, lead, opportunity.
 
-// * In the private subnets:
-// ** <item>.
-// ** <item>.
-// Add bullet points for any additional components that are included in the deployment. Ensure that the additional components are shown in the architecture diagram. End each bullet with a period.
-// * <describe any additional components>.
+* AWS Lambda to create all the required database objects. A custom Lambda function creates a schema with tables in the Redshift cluster. This function invokes Amazon AppFlow to run it from Salesforce to Redshift.
+
+* Amazon Simple Storage Service (Amazon S3) to ____.
+
+* Amazon QuickSight to ____.
+
+* AWS Identity and Access Management (IAM) to ____.
+
+* AWS Secrets Manager to ____.
+
+* AWS Key Management Service (AWS KMS) to ____.
 
 
-// [.small]#* The template that deploys this Quick Start into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
+// [.small]#* The template that deploys this Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
+
+// TODO Troy, I think we want to uncommented the footnote. Correct? If so, which bullet items should we asterisk?
+
+//TODO Troy, In each blank space above, please fill in a phrase.
+
+//TODO Troy, How to rephrase this for clarity: "This function invokes Amazon AppFlow to run it from Salesforce to Redshift"?
+
+//TODO Troy, Should "Mapping will field all destination fields" be "Mapping will fill all destination fields"?
+
+//TODO Troy, Should "SWL" be "SQL"?
