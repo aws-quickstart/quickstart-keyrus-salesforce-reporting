@@ -13,35 +13,27 @@ As shown in <<architecture1>>, this Partner Solution sets up the following:
 * A virtual private cloud (VPC) configured with public and private subnets, according to AWS
 best practices, to provide you with your own virtual network on AWS.
 
-* In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.
+* In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets. *
 
-* In the private subnets, an Amazon RedShift cluster of Dense Compute (DC) nodes, one in each subnet. These nodes ____.
+* In the private subnets, an Amazon RedShift cluster of Dense Compute (DC) nodes, one in each subnet. These nodes handle all the Redshift database work.
 
-* AWS PrivateLink to ____.
+* AWS PrivateLink to connect back to your SalesForce instance.
 
-* Amazon AppFlow to create a mapping method to transfer Salesforce data to Amazon Redshift. Mapping will field all destination fields. This solution includes a sample SWL mapping file for objects: account, contact, case, lead, opportunity.
+* Amazon AppFlow to create a mapping method to transfer Salesforce data to Amazon Redshift. Mapping will field all destination fields. This solution includes a sample workflow mapping file( *.swl) for objects: account, contact, case, lead, opportunity.
 
-* AWS Lambda to create all the required database objects. A custom Lambda function creates a schema with tables in the Redshift cluster. This function invokes Amazon AppFlow to run it from Salesforce to Redshift.
+* AWS Lambda
+** A function to create all the required database objects and schema with tables in the Redshift cluster.
+** A function invokes Amazon AppFlow to run it from Salesforce to Redshift.
 
-* Amazon Simple Storage Service (Amazon S3) to ____.
+* Amazon Simple Storage Service (Amazon S3) to store the Redshift logs.
 
-* Amazon QuickSight to ____.
+* Amazon QuickSight to visualize the data that you have run analytics on.
 
-* AWS Identity and Access Management (IAM) to ____.
+* AWS Identity and Access Management (IAM) to manage the required roles for te deployment.
 
-* AWS Secrets Manager to ____.
+* AWS Secrets Manager to store and manage Redshift credentials.
 
-* AWS Key Management Service (AWS KMS) to ____.
+* AWS Key Management Service (AWS KMS) to encrypt the data within RedShift.
 
 
-// [.small]#* The template that deploys this Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
-
-// TODO Troy, I think we want to uncommented the footnote. Correct? If so, which bullet items should we asterisk?
-
-//TODO Troy, In each blank space above, please fill in a phrase.
-
-//TODO Troy, How to rephrase this for clarity: "This function invokes Amazon AppFlow to run it from Salesforce to Redshift"?
-
-//TODO Troy, Should "Mapping will field all destination fields" be "Mapping will fill all destination fields"?
-
-//TODO Troy, Should "SWL" be "SQL"?
+[.small]#* The template that deploys this Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#
