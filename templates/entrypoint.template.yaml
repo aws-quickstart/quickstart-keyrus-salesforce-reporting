@@ -122,17 +122,17 @@ Metadata:
       EncryptionAtRest:
         default: Enables or disables encryption at rest of the Redshift database.
       LeadSalesforce:
-        default: "Name of the Lead object flow"
+        default: Lead Salesforce object flow
       ContactSalesforce:
-        default: "Name of the Contact object flow"
+        default: Contact Salesforce object flow
       CaseSalesforce:
-        default: "Name of the Case object flow"
+        default: Case Salesforce object flow
       AccountSalesforce:
-        default: "Name of the Account object flow"
+        default: Account Salesforce object flow
       OpportunitySalesforce:
-        default: "Name of the Oportunity object flow"
+        default: Opportunity Salesforce object flow
       ConnectorProfileNameSalesforce:
-        default: Production radio box from the Salesforce environment section (connection Must be created before deploying )
+        default: Connector profile name for Salesforce
 Parameters:
   QSS3BucketName:
     AllowedPattern: ^[0-9a-z]+([0-9a-z-\.]*[0-9a-z])*$
@@ -340,27 +340,27 @@ Parameters:
       # - 'Salesforce'
     Description: Connection profile type
   AccountSalesforce:
-    Description: Salesforce account objects
+    Description: Name of the account object flow for Salesforce.
     Default: Account-Salesforce
     Type: String
   CaseSalesforce:
-    Description: Salesforce case objects
+    Description: Name of the case object flow for Salesforce.
     Default: Case-Salesforce
     Type: String
   ContactSalesforce:
-    Description: Salesforce contact objects
+    Description: Name of the contact object flow for Salesforce.
     Default: Contact-Salesforce
     Type: String
   LeadSalesforce:
-    Description: Salesforce lead objects
+    Description: Name of the lead object flow for Salesforce.
     Default: Lead-Salesforce
     Type: String
   OpportunitySalesforce:
-    Description: Salesforce opportunity objects
+    Description: Name of the opportunity object flow for Salesforce.
     Default: Opportunity-Salesforce
     Type: String
   ConnectorProfileNameSalesforce:
-    Description: "Select the Production radio box from the Salesforce environment section. Enter the connection name and click Continue. The Connection name must match in every single CloudFormation template for Amazon AppFlow logs or any other desired name."
+    Description: "Enter the connection name that you created in the Amazon AppFlow console when connecting your VPC with your Salesforce account."
     Type: String
     Default: aws_demo
 Conditions:
