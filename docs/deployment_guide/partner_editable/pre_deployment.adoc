@@ -19,7 +19,7 @@ When you connect your VPC in the AWS Cloud with your Salesforce-managed VPC usin
 
 . Choose *Create connection*. If prompted to log in to Salesforce, do so.
 
-. Choose Salesforce from the dropdown list of connections, and choose *Connect*. If you have used AppFlow previously in your account, you may see *Create new connection* in the *Choose Salesforce connection* dropdown list.
+. Choose Salesforce from the dropdown list of connections, and choose *Connect*. If you have used AppFlow previously in your account, *Create new connection* may appear in the *Choose Salesforce connection* dropdown list.
 
 . On the *Connect to Salesforce* screen (shown in <<#ConnectionName>>), choose *Production* for your Salesforce environment, and enter your connection name.
 +
