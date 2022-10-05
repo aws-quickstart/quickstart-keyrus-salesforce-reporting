@@ -84,9 +84,9 @@ Metadata:
       RemoteAccessCIDR3:
         default: Remote-access CIDR 3
       DatabaseName:
-        default: The name of the first database to be created when the cluster is created
+        default: Database name
       RedshiftClusterPort:
-        default: Redshift database clusters are not using their default endpoint port
+        default: Redshift cluster port
       NumberOfNodes:
         default: The number of compute nodes in the cluster
       NodeType:
@@ -94,9 +94,9 @@ Metadata:
       AutoPasswordRotationIntervalDays:
         default: Password rotation refers to the changing/resetting of a password(s)
       S3BucketPrefix:
-        default: S3 Bucket Prefix for logging bucket
+        default: S3 bucket prefix
       EnableLoggingToS3:
-        default: Enables or disables logging to an S3 bucket.
+        default: Enable logging to S3
       MasterUsername:
         default: Connection profile name for Amazon Redshift
       MaxConcurrentCluster:
@@ -219,12 +219,12 @@ Parameters:
     Type: String
     Default: 44.194.111.224/30
   DatabaseName:
-    Description: The name of the first database to be created when the cluster is created.
+    Description: Name of the first database to be created when the cluster is created.
     Type: String
     Default: dev
     AllowedPattern: '([a-z]|[0-9])+'
   RedshiftClusterPort:
-    Description: The port number on which the cluster accepts incoming connections.
+    Description: Port number on which the Redshift database cluster accepts incoming connections.
     Type: Number
     Default: '5439'
   NumberOfNodes:
@@ -288,9 +288,9 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
-    Description: Enables or disables logging to an S3 bucket.  To enable logging, select True.
+    Description: Enables or disables logging to an S3 bucket. To disable logging, select "false".
   S3BucketPrefix:
-      Description: The prefix name for the S3 bucket
+      Description: Prefix for the S3 logging bucket.
       Type: String
       Default: 'Logs'
   EnableVPCEnhancedRouting:
@@ -360,7 +360,7 @@ Parameters:
     Default: Opportunity-Salesforce
     Type: String
   ConnectorProfileNameSalesforce:
-    Description: "Enter the connection name that you created in the Amazon AppFlow console when connecting your VPC with your Salesforce account."
+    Description: "Name that you created in the Amazon AppFlow console when you connected your VPC with your Salesforce account. Enter the connection name exactly as you created it."
     Type: String
     Default: aws_demo
 Conditions:
