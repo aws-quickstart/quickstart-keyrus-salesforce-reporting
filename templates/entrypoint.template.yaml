@@ -6,6 +6,7 @@ Metadata:
     Exclusions: [ W9002, W9003, W9004, W9006 ]
   QuickStartDocumentation:
     EntrypointName: "Launch into a new VPC"
+    # TODO Troy, Does this template really launch into a new VPC (one that doesn't exist yet)? We keep saying that your VPC and Salesforce account have to be connected before you deploy, so it seems like the VPC must already be in place—and connected—before we launch this template.
     Order: 1
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -71,8 +72,10 @@ Metadata:
         default: VPC CIDR
       PrivateSubnet1CIDR:
         default: Private subnet 1A CIDR
+    # TODO Troy, Can we delete this "A"? Neither the description nor the parameter itself include an "A." If we need the "A," clarify in the description what it refers to.
       PrivateSubnet2CIDR:
         default: Private subnet 2A CIDR
+    # TODO Troy, Can we delete this "A"? Neither the description nor the parameter itself include an "A." If we need the "A," clarify in the description what it refers to.
       PublicSubnet1CIDR:
         default: Public subnet 1 CIDR
       PublicSubnet2CIDR:
@@ -99,6 +102,7 @@ Metadata:
         default: Enable logging to S3
       MasterUsername:
         default: Master user name
+    # TODO: Troy, We can’t use "master" in AWS parameters.
       MaxConcurrentCluster:
         default: Maximum concurrent clusters
       ConnectionModeVal:
@@ -174,7 +178,7 @@ Parameters:
     Type: List<AWS::EC2::AvailabilityZone::Name>
   VPCCIDR:
     AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.0.0/16
     Description: CIDR block for the VPC.
     Type: String
@@ -195,27 +199,31 @@ Parameters:
   PublicSubnet1CIDR:
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.128.0/20
     Description: 'CIDR block for the public subnet 1, located in Availability Zone 1.'
     Type: String
   PublicSubnet2CIDR:
     AllowedPattern: >-
       ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/(1[6-9]|2[0-8]))$
-    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28.
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/16-28
     Default: 10.0.144.0/20
     Description: 'CIDR block for the public subnet 2, located in Availability Zone 2.'
     Type: String
   RemoteAccessCIDR1:
     Description: Comma-delimited list of three CIDR IP addresses.
+    # TODO Troy, Is this parameter actually a "list of three" addresses?
+    # TODO Troy, What's unique about RemoteAccessCIDR1 (vs. CIDR2 & CIDR3)?
     Type: String
     Default: 3.235.189.100/30
   RemoteAccessCIDR2:
     Description: Comma-delimited list of three CIDR IP addresses.
+    # TODO Troy, Same questions as RemoteAccessCIDR1.
     Type: String
     Default: 3.235.189.96/30
   RemoteAccessCIDR3:
     Description: Comma-delimited list of three CIDR IP addresses.
+    # TODO Troy, Same questions as RemoteAccessCIDR1.
     Type: String
     Default: 44.194.111.224/30
   DatabaseName:
@@ -225,6 +233,7 @@ Parameters:
     AllowedPattern: '([a-z]|[0-9])+'
   RedshiftClusterPort:
     Description: Port on which the Redshift database cluster accepts incoming connections.
+    # TODO: Troy, I removed this statement: “Redshift database clusters are not using their default endpoint port.” If that statement implied an action that people need to take or avoid taking when they deploy, please spell it out.
     Type: Number
     Default: '5439'
   NumberOfNodes:
@@ -248,20 +257,20 @@ Parameters:
     Type: String
     Default: 30
     AllowedPattern: '([0-9])*'
-    ConstraintDescription: must be a number
+    ConstraintDescription: Must be a number.
   MasterUsername:
     Description: The user name that is associated with the user account for the cluster that is being created.
     Type: String
     Default: test
     AllowedPattern: '([a-z])([a-z]|[0-9])*'
-    ConstraintDescription: must start with a-z and contain only a-z or 0-9.
+    ConstraintDescription: Must start with a-z and contain only a-z or 0-9.
   ConcurrencyScaling:
     Default: 'auto'
     Type: String
     AllowedValues:
       - 'auto'
       - 'off'
-    Description: Concurrency scaling supports virtually unlimited concurrent users and concurrent queries with consistently fast query performance. When the number of queries routed to a queue exceeds the queue's configured concurrency, eligible queries go to the scaling cluster. To disable concurrency scaling, choose "off."
+    Description: Concurrency scaling supports virtually unlimited concurrent users and concurrent queries with consistently fast query performance. When the number of queries routed to a queue exceeds the queue's configured concurrency, eligible queries go to the scaling cluster automatically by default. To disable concurrency scaling, choose "off."
   MaxConcurrentCluster:
     Description: The maximum number of concurrency-scaling Redshift clusters.
     Type: String
@@ -320,7 +329,7 @@ Parameters:
       - prod
       - none
     Default: 'test'
-    Description: Tag that is used to designate the environment stage of the associated AWS resource.
+    Description: Tag that designates the environment stage of the associated AWS resource.
   ConnectionModeVal:
     Default: 'Public'
     Type: String
@@ -361,6 +370,7 @@ Parameters:
     Type: String
   ConnectorProfileNameSalesforce:
     Description: "Name that you created in the Amazon AppFlow console when you connected your VPC with your Salesforce account. Enter the connection name exactly as you created it."
+    # TODO Troy, If the VPC must already be connected, how can we say that this template launches into a new VPC (one that doesn't exist yet)?
     Type: String
     Default: aws_demo
 Conditions:
