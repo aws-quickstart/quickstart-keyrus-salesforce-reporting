@@ -259,7 +259,7 @@ Parameters:
     AllowedPattern: '([0-9])*'
     ConstraintDescription: Must be a number.
   MasterUsername:
-    Description: The user name that is associated with the user account for the cluster that is being created.
+    Description: User name that is associated with the user account for the cluster that is being created.
     Type: String
     Default: test
     AllowedPattern: '([a-z])([a-z]|[0-9])*'
