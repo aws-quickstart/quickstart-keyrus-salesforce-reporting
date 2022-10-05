@@ -88,39 +88,39 @@ Metadata:
       RedshiftClusterPort:
         default: Redshift cluster port
       NumberOfNodes:
-        default: The number of compute nodes in the cluster
+        default: Number of nodes
       NodeType:
-        default: The node type determines the CPU, RAM, storage capacity, and storage drive type for each node
+        default: Node type
       AutoPasswordRotationIntervalDays:
-        default: Password rotation refers to the changing/resetting of a password(s)
+        default: Automatic password rotation interval
       S3BucketPrefix:
         default: S3 bucket prefix
       EnableLoggingToS3:
         default: Enable logging to S3
       MasterUsername:
-        default: Connection profile name for Amazon Redshift
+        default: Master user name
       MaxConcurrentCluster:
-        default: The maximum number of concurrency scaling Redshift clusters
+        default: Maximum concurrent clusters
       ConnectionModeVal:
         default: Connection mode value
       ConnectorType:
         default: Connector type
       TagName:
-        default: Company name
+        default: Tag for the company name
       TagEnvironment:
-        default: Environment tag
+        default: Tag for the environment
       ConnectorProfileName:
         default: Connector profile name
       MaintenanceTrack:
-        default: Amazon Redshift version to apply during a maintenance window
+        default: Maintenance track
       EnableVPCEnhancedRouting:
-        default: Enhanced VPC routing in Amazon Redshift
+        default: Enable VPC enhanced routing
       EnableAQUA:
-        default: Advanced Query Accelerator
+        default: Enable AQUA
       ConcurrencyScaling:
-        default: You can support virtually unlimited concurrent users and concurrent queries, with consistently fast query performance.
+        default: Concurrency scaling
       EncryptionAtRest:
-        default: Enables or disables encryption at rest of the Redshift database.
+        default: Encryption at rest
       LeadSalesforce:
         default: Lead Salesforce object flow
       ContactSalesforce:
@@ -228,11 +228,11 @@ Parameters:
     Type: Number
     Default: '5439'
   NumberOfNodes:
-    Description: The number of compute nodes in the cluster. For multi-node clusters, the NumberOfNodes parameter must be greater than 1.
+    Description: Number of compute nodes in the cluster. For multi-node clusters, the NumberOfNodes parameter must be greater than 1.
     Type: Number
     Default: '2'
   NodeType:
-    Description: The type of node to be provisioned
+    Description: Type of node to provision. The node type determines the CPU, RAM, storage capacity, and storage-drive type for each node.
     Type: String
     Default: dc2.large
     AllowedValues:
@@ -244,7 +244,7 @@ Parameters:
       - ds2.xlarge
       - ds2.8xlarge
   AutoPasswordRotationIntervalDays:
-    Description: Number of days after which user password will be auto-rotated
+    Description: Number of days after which the user password is automatically rotated (changed or reset).
     Type: String
     Default: 30
     AllowedPattern: '([0-9])*'
@@ -261,9 +261,9 @@ Parameters:
     AllowedValues:
       - 'auto'
       - 'off'
-    Description: When the number of queries routed to a queue exceeds the queue's configured concurrency, eligible queries go to the scaling cluster.
+    Description: Concurrency scaling supports virtually unlimited concurrent users and concurrent queries with consistently fast query performance. When the number of queries routed to a queue exceeds the queue's configured concurrency, eligible queries go to the scaling cluster. To disable concurrency scaling, choose "off."
   MaxConcurrentCluster:
-    Description: The maximum number of concurrency scaling Redshift clusters.
+    Description: The maximum number of concurrency-scaling Redshift clusters.
     Type: String
     Default: '1'
   EnableAQUA:
@@ -273,22 +273,22 @@ Parameters:
       - 'auto'
       - 'enabled'
       - 'disabled'
-    Description: Enables or disables AQUA (Advanced Query Accelerator). With auto, Amazon Redshift determines whether to use AQUA.
+    Description: Enables or disables AQUA (Advanced Query Accelerator) for Amazon Redshift. If you don't want the use of AQUA to be determined automatically, choose "enabled" or "disabled."
   EncryptionAtRest:
-    Description: Enables or disables encryption at rest of the Redshift database.
+    Description: Enables or disables encryption at rest for the Redshift database. To disable encryption at rest, choose "false."
     Type: String
     Default: 'true'
     AllowedValues:
       - 'true'
       - 'false'
-    ConstraintDescription: must be true or false.
+    ConstraintDescription: Must be true or false.
   EnableLoggingToS3:
     Default: 'true'
     Type: String
     AllowedValues:
       - 'true'
       - 'false'
-    Description: Enables or disables logging to an S3 bucket. To disable logging, select "false."
+    Description: Enables or disables logging to an S3 bucket. To disable logging, choose "false."
   S3BucketPrefix:
       Description: Prefix for the S3 logging bucket.
       Type: String
@@ -299,17 +299,17 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
-    Description: Enables or disables VPC enhanced routing.  To enable enhanced routing, select True.
+    Description: Enables or disables enhanced VPC routing in Amazon Redshift. To disable enhanced routing, select "false."
   MaintenanceTrack:
     Default: 'current'
     Type: String
     AllowedValues:
       - 'current'
       - 'trailing'
-    Description: Defines the Amazon Redshift version to apply during a maintenance window. Select "current" to apply the most recent version and "trailing" for the previous version.
+    Description: Amazon Redshift version to apply during a maintenance window. To apply the previous version, choose "trailing."
   TagName:
     Type: String
-    Description: The unique friendly name as required by your company is tagging strategy document, and which will be added to the environment tag.
+    Description: Unique, friendly name as required by your company's tagging strategy. TagName is added to TagEnvironment.
     Default: 'redshift'
   TagEnvironment:
     Type: String
@@ -320,7 +320,7 @@ Parameters:
       - prod
       - none
     Default: 'test'
-    Description: The environment tag that is used to designate the environment stage of the associated AWS resource.
+    Description: Tag that is used to designate the environment stage of the associated AWS resource.
   ConnectionModeVal:
     Default: 'Public'
     Type: String
