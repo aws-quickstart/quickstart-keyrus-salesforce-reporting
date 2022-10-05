@@ -102,15 +102,15 @@ Metadata:
       MaxConcurrentCluster:
         default: The maximum number of concurrency scaling Redshift clusters
       ConnectionModeVal:
-        default: Connection mode for connection profile
+        default: Connection mode value
       ConnectorType:
-        default: Connection profile type
+        default: Connector type
       TagName:
         default: Company name
       TagEnvironment:
         default: Environment tag
       ConnectorProfileName:
-        default: Connection name for Redshift cluster
+        default: Connector profile name
       MaintenanceTrack:
         default: Amazon Redshift version to apply during a maintenance window
       EnableVPCEnhancedRouting:
@@ -224,7 +224,7 @@ Parameters:
     Default: dev
     AllowedPattern: '([a-z]|[0-9])+'
   RedshiftClusterPort:
-    Description: Port number on which the Redshift database cluster accepts incoming connections.
+    Description: Port on which the Redshift database cluster accepts incoming connections.
     Type: Number
     Default: '5439'
   NumberOfNodes:
@@ -288,7 +288,7 @@ Parameters:
     AllowedValues:
       - 'true'
       - 'false'
-    Description: Enables or disables logging to an S3 bucket. To disable logging, select "false".
+    Description: Enables or disables logging to an S3 bucket. To disable logging, select "false."
   S3BucketPrefix:
       Description: Prefix for the S3 logging bucket.
       Type: String
@@ -327,18 +327,18 @@ Parameters:
     AllowedValues:
       - 'Public'
       - 'Private'
-    Description: Connection mode for connection profile
+    Description: Connection mode for the Redshift cluster's connector profile.
   ConnectorProfileName:
     Default: 'profile'
     Type: String
-    Description: Connection profile name for the Redshift cluster
+    Description: Name of the Redshift cluster's connector profile.
   ConnectorType:
     Default: 'Redshift'
     Type: String
     AllowedValues:
       - 'Redshift'
       # - 'Salesforce'
-    Description: Connection profile type
+    Description: Type of connector profile.
   AccountSalesforce:
     Description: Name of the account object flow for Salesforce.
     Default: Account-Salesforce
