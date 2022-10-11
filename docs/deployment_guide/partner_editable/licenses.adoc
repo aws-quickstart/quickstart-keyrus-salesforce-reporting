@@ -1,3 +1,3 @@
 There is no cost to use this Partner Solution, but you will be billed for any AWS services or resources that it deploys. For more information, refer to the https://fwd.aws/rA69w?[AWS Partner Solution General Information Guide^].
 
-There are no licensing requirements for this Partner Solution.
+No licenses are required to deploy this Partner Solution.
