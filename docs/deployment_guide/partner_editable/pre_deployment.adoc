@@ -9,9 +9,9 @@ If you don't already have a Salesforce account, https://catalog.us-east-1.prod.w
 
 //TODO Troy, Why is the above line commented out; will we be adding it?
 
-=== Connect your VPC in the AWS Cloud with your Salesforce-managed VPC
+=== Connect your VPC in the AWS Cloud with your Salesforce account
 
-When you connect your VPC in the AWS Cloud with your Salesforce-managed VPC using AWS PrivateLink, data traffic flows between your VPCs automatically. Connect your VPCs as follows.
+When you connect your VPC in the AWS Cloud with your Salesforce-managed VPC using AWS PrivateLink, data traffic flows between the VPCs automatically. Connect the VPCs as follows.
 
 . Sign in to the AWS Management Console and open the https://us-east-1.console.aws.amazon.com/appflow/[Amazon AppFlow console^].
 
