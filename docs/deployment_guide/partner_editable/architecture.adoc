@@ -28,7 +28,7 @@ best practices, to provide you with your own virtual network on AWS.*
 
 * Amazon QuickSight to visualize the data that you have run analytics on.
 
-* AWS Identity and Access Management (IAM) to manage the required roles for te deployment.
+* AWS Identity and Access Management (IAM) to manage the roles that are required for the deployment.
 
 * AWS Secrets Manager to store and manage Amazon Redshift credentials.
 
