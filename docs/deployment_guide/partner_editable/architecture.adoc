@@ -20,7 +20,7 @@ best practices, to provide you with your own virtual network on AWS.*
 
 * AWS PrivateLink to connect to your SalesForce instance.
 
-* Amazon AppFlow to create a mapping method to transfer Salesforce data to Amazon Redshift. Mapping creates all destination fields. This solution includes a sample workflow-mapping file (*.swl) for objects: account, contact, case, lead, opportunity.
+* Amazon AppFlow to create a mapping method to transfer Salesforce data to Amazon Redshift. Mapping creates all destination fields. This solution includes a sample workflow-mapping SWL file for objects: account, contact, case, lead, opportunity.
 
 * AWS Lambda to creates all the required database objects and schema with tables in the Amazon Redshift cluster and to invoke Amazon AppFlow.
 
