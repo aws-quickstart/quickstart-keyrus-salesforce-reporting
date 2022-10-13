@@ -1,25 +1,31 @@
 == Postdeployment steps
-
-Configure the flow runs as follows:
-
-. Do this <___?>.
-
-. Do this <___?>.
+. (Optional) Change the *flow-trigger* setting. By default it's set to refresh the cycle data once an hour.
++
+A trigger determines how a flow runs. The following are the supported flow trigger types:
++
+* *Run on demand*: Users manually run the flow as needed.
++
+* *Run on event*: Amazon AppFlow runs the flow in response to an event from a SaaS application.
++
+* *Run on schedule*: Amazon AppFlow runs the flow on a recurring schedule.
 
 . Sign in to the AWS Management Console and open the https://us-east-1.console.aws.amazon.com/appflow/[Amazon AppFlow console^].
 
-. In the navigation pane, choose <___?>.
+. In the navigation pane, choose *Flows*, then choose any *Flow name*, then then choose *Edit*
+[#TriggerChange]
 
-. (Optional) Change the flow-trigger setting. By default it's set to refresh the cycle data once an hour.
+[link=image::../docs/deployment_guide/images/aws-quickstart-post_deployment-flow-triger.png]
+image::../docs/deployment_guide/images/aws-quickstart-post_deployment-flow-triger.png[]
 
-. (Optional) Change the flow-trigger types. The following types are available:
-+
-* Run on demand: Users manually run the flow as needed.
-+
-* Run on event: Amazon AppFlow runs the flow in response to an event from a SaaS application.
-+
-* Run on schedule: Amazon AppFlow runs the flow on a recurring schedule.
+
+. In the navigation pane, choose *Edit flow configuration*, then look for Flow triger
+[#Flowtrigger]
+
+[link=image::../docs/deployment_guide/images/aws-post_deployment-flow-triger-change.png]
+image::../docs/deployment_guide/images/aws-post_deployment-flow-triger-change.png[]
+
+
 
 //TODO Troy, What are the steps configuring the flow runs? How much detail do we need to go into? Where can we just point to a console and letting people follow the UI, or point to existing documentation?
-
 //TODO Troy, Any other postdeployment tasks besides configuring the flow runs?
+// I added all manual steps for users to choose a flow runs

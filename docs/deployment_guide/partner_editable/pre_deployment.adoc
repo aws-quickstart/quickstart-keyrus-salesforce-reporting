@@ -22,6 +22,7 @@ When you connect your VPC in the AWS Cloud with your Salesforce-managed VPC usin
 . Choose Salesforce from the dropdown list of connections, and choose *Connect*. If you have used AppFlow previously in your account, *Create new connection* may appear in the *Choose Salesforce connection* dropdown list.
 
 . On the *Connect to Salesforce* screen (shown in <<#ConnectionName>>), choose *Production* for your Salesforce environment, and enter your connection name.
+. *NOTE* That Sandbox Accounts has to be provisioned by a Salesforce administrator.
 +
 [#ConnectionName]
 .The "Connect to Salesforce" screen in the Amazon AppFlow console
@@ -41,17 +42,20 @@ image::../docs/deployment_guide/images/aws-quickstart-predeployment-appflow-conn
 
 
 //TODO Troy, How does this predeployment process work for people who want to deploy to a new VPC? Or who have a VPC but don't have PrivateLink?
+//Privatelink need to be done by Salesdorce admin, 
 
 //TODO Troy, Are steps 2-4 correct as edited?
+//yes, it is correct 
 
 //TODO Troy, What if people want to deploy into a sandbox environment? (The parameter description seems to indicate that we have to be in a production environment. I'm not clear on what the param description implies; let's look at that together.)
+// They need to have Sandbox envirement to run it, we tested all works 
 
-//TODO Troy, How do we "allow" Amazon AppFlow to access our Salesforce account?
-
-//TODO Troy, What is the "Salesforce sight in screen"?
 
 //TODO Troy, Can we choose whatever connection name we want? Any constraints, suggestions, things to avoid?
+// We can choose any connection name we want
 
 //TODO Troy, Where in these steps do we use PrivateLink?
+//Private Connect is available in partnership with AWS via a feature called AWS PrivateLink. PrivateLink provides private connectivity between VPCs, AWS services, and on-premise applications on the Amazon Network. Connect your existing or new AWS VPC to a Salesforce-managed VPC with PrivateLink. Then, all the data traffic flowing between your VPC and your Salesforce org is automatically routed through the connection.
+//Privatelink need to be done by Salesdorce admin 
+//https://help.salesforce.com/s/articleView?id=sf.private_connect_overview.htm&type=5 
 
-//TODO Marcia to delete Fig 3 eventually; we'll be changing the param description.
