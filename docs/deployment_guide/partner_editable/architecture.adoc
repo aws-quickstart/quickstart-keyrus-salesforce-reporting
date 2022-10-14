@@ -5,7 +5,7 @@ AWS Cloud.
 
 [#architecture1]
 .Partner Solution architecture for {partner-product-short-name} on AWS
-image::../docs/deployment_guide/images/keyrus-salesforce-architecture_diagram.png[Architecture, 90%]
+image::../docs/deployment_guide/images/keyrus-salesforce-architecture_diagram.png[Architecture, 95%]
 
 As shown in <<architecture1>>, this Partner Solution sets up the following:
 
@@ -18,17 +18,11 @@ best practices, to provide you with your own virtual network on AWS.*
 
 * In the private subnets, an Amazon Redshift cluster of Dense Compute (DC) nodes, one in each subnet. These nodes handle all the Amazon Redshift database work.
 
-* AWS PrivateLink to connect to your SalesForce instance.
-
 * Amazon AppFlow to create a mapping method to transfer Salesforce data to Amazon Redshift. Mapping creates all destination fields. This solution includes a sample workflow-mapping SWL file for objects: account, contact, case, lead, opportunity.
 
-* AWS Lambda to creates all the required database objects and schema with tables in the Amazon Redshift cluster and to invoke Amazon AppFlow.
+* AWS Lambda to create all the required database objects and schema with tables in the Amazon Redshift cluster and to invoke Amazon AppFlow.
 
 * Amazon Simple Storage Service (Amazon S3) to store the Amazon Redshift logs.
-
-* Amazon QuickSight to visualize the data that you have run analytics on.
-
-* AWS Identity and Access Management (IAM) to manage the roles that are required for the deployment.
 
 * AWS Secrets Manager to store and manage Amazon Redshift credentials.
 
