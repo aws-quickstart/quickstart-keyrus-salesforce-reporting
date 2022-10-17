@@ -1,0 +1,17 @@
+== Postdeployment steps
+=== (Optional) Change the flow trigger
+
+By default, Amazon AppFlow runs the flow on a recurring schedule, refreshing the data once per hour. To change this interval, to run the flow on demand, or to run the flow in response to a SaaS-application event, change the flow trigger as follows.
+
+. Sign in to the AWS Management Console, and open the https://us-east-1.console.aws.amazon.com/appflow/[Amazon AppFlow console^].
+
+. In the navigation pane, choose *Flows*, choose a flow name, and choose *Edit*.
+
+. In the navigation pane, choose *Edit flow configuration*, and choose *Flow trigger*. The *Flow trigger* screen appears, as shown in <<Flowtrigger>>.
++
+[#Flowtrigger]
+.Flow-trigger settings in the Amazon AppFlow console
+[link=image::../docs/deployment_guide/images/aws-post_deployment-flow-trigger-change.png]
+image::../docs/deployment_guide/images/aws-post_deployment-flow-trigger-change.png[]
+
+. Make the desired changes.

@@ -1,0 +1,32 @@
+:xrefstyle: short
+
+Deploying this Partner Solution with default parameters builds the following {partner-product-short-name} environment in the
+AWS Cloud.
+
+[#architecture1]
+.Partner Solution architecture for {partner-product-short-name} on AWS
+image::../docs/deployment_guide/images/keyrus-salesforce-architecture_diagram.png[Architecture, 95%]
+
+As shown in <<architecture1>>, this Partner Solution sets up the following:
+
+* A highly available architecture that spans two Availability Zones.*
+
+* A virtual private cloud (VPC) configured with public and private subnets, according to AWS
+best practices, to provide you with your own virtual network on AWS.*
+
+* In the public subnets, managed network address translation (NAT) gateways to allow outbound internet access for resources in the private subnets.*
+
+* In the private subnets, an Amazon Redshift cluster of Dense Compute (DC) nodes, one in each subnet. These nodes handle all the Amazon Redshift database work.
+
+* Amazon AppFlow to create a mapping method to transfer Salesforce data to Amazon Redshift. Mapping creates all destination fields. This solution includes a sample workflow-mapping .swl file for account, contact, case, lead, and opportunity objects.
+
+* AWS Lambda to create all the required database objects and schema with tables in the Amazon Redshift cluster and to invoke Amazon AppFlow.
+
+* Amazon Simple Storage Service (Amazon S3) to store the Amazon Redshift logs.
+
+* AWS Secrets Manager to store and manage Amazon Redshift credentials.
+
+* AWS Key Management Service (AWS KMS) to encrypt the data within Amazon Redshift.
+
+
+[.small]#* The template that deploys this Partner Solution into an existing VPC skips the components marked by asterisks and prompts you for your existing VPC configuration.#

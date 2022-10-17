@@ -1,0 +1,29 @@
+== Predeployment steps
+
+Complete the following steps before you deploy the Partner Solution.
+
+=== Sign up for a Salesforce account
+
+If you don't already have a Salesforce account, https://catalog.us-east-1.prod.workshops.aws/workshops/9787ec94-1ace-44cc-91e5-976ad7ddc0b1/en-US/salesforce/salesforce-signup[sign up for one^], and then configure your Salesforce connection. For more information, refer to the https://developer.salesforce.com/[Salesforce website for developers^].
+
+=== Connect Amazon AppFlow to your Salesforce account
+
+. Sign in to the AWS Management Console, and open the https://us-east-1.console.aws.amazon.com/appflow/[Amazon AppFlow console^].
+
+. In the navigation pane, choose *Connections*, and then choose *Salesforce* as your connector.
+
+. Choose *Create connection*. If prompted to log in to Salesforce, do so.
+
+. Choose *Salesforce* from the dropdown list of connections, and choose *Connect*. The *Connect to Salesforce* screen appears, as shown in <<#ConnectionName>>
++
+[#ConnectionName]
+."Connect to Salesforce" screen in the Amazon AppFlow console
+[link=image::../docs/deployment_guide/images/aws-quickstart-predeployment-connect-salesforce.png]
+image::../docs/deployment_guide/images/aws-quickstart-predeployment-connect-salesforce.png[]
+
+. Choose the desired settings.
+.. For *Salesforce environment*, choose *Production* or *Sandbox*. Before you choose the sandbox environment, confirm that your Salesforce administrator has set up a sandbox instance.
+.. For *PrivateLink* (AWS PrivateLink), choose *Enabled* or *Disabled*. Before you enable, confirm that your Salesforce administrator has set up Private Connect. For more information, refer to https://help.salesforce.com/s/articleView?id=sf.private_connect_overview.htm&type=5[Secure Cross-Cloud Integrations with Private Connect^].
+.. For *Connection name*, enter any name you like. Make a note of it; you'll need to enter it in the AWS CloudFormation template when you deploy this solution.
+
+. Log in to Salesforce. When prompted to allow Amazon AppFlow access to Salesforce, choose *Allow*.
