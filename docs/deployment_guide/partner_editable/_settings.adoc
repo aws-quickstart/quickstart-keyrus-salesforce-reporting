@@ -1,7 +1,7 @@
-:quickstart-project-name: quickstart-keyrus-salesforce-reporting
-:quickstart-github-org: aws-quickstart
-:partner-product-name: Keyrus Salesforce Reporting
-:partner-product-short-name: Keyrus Salesforce Reporting
+:partner-solution-project-name: quickstart-keyrus-salesforce-reporting
+:partner-solution-github-org: aws-quickstart
+:partner-product-name: Salesforce data warehouse on Amazon Redshift
+:partner-product-short-name: Salesforce data warehouse
 :partner-company-name: Keyrus
 :doc-month: October
 :doc-year: 2022
